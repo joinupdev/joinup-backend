@@ -1,0 +1,119 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String    @id @default(uuid())
+  name       String?
+  email      String    @unique
+  mobileNo   String?
+  password   String?
+  profession String? // Optional field (Student / Working)
+  place      String? // Optional field (Institute name)
+  jobTitle   JobTitle? // Designer / Developer
+  gender     Gender?
+  linkedin   String? // Optional field
+  type       UserType  @default(user)
+  bookings   Booking[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime? @updatedAt
+
+  Event Event[]
+}
+
+model Event {
+  id              String        @id @default(uuid())
+  name            String
+  description     String
+  category        EventCategory
+  type            EventType // Meetup, conference, etc
+  location        LocationType
+  completeAddress String // Web URL / Complete address
+  host            User          @relation(fields: [hostId], references: [id])
+  hostId          String
+  speakers        Speaker[] // Relation to Host model
+  seats           Int
+  isPaid          Boolean // Paid/Free
+  ticketPrice     Float? // Optional if isPaid is false
+  duration        Int // In hours
+  startTime       DateTime
+  termsConditions String?
+  faq             String?
+  bookings        Booking[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime?     @updatedAt
+}
+
+model Speaker {
+  id          String    @id @default(uuid())
+  name        String
+  linkedin    String?
+  description String
+  event       Event     @relation(fields: [eventId], references: [id])
+  eventId     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+}
+
+model Booking {
+  id             String        @id @default(uuid())
+  user           User          @relation(fields: [userId], references: [id])
+  userId         String
+  event          Event         @relation(fields: [eventId], references: [id])
+  eventId        String
+  qrCode         String
+  paymentReceipt String?
+  status         BookingStatus // Pending, Approved, Rejected
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime?     @updatedAt
+
+  @@unique([userId, eventId])
+}
+
+enum JobTitle {
+  Designer
+  Developer
+}
+
+enum Gender {
+  Male
+  Female
+  Others
+}
+
+enum UserType {
+  user
+  admin
+}
+
+enum EventCategory {
+  Design
+  Development
+  Both
+}
+
+enum LocationType {
+  Online
+  Physical
+}
+
+enum BookingStatus {
+  Pending
+  Approved
+  Rejected
+}
+
+enum EventType {
+  Meetup
+  Conference
+  Workshop
+  Webinar
+  Hackathon
+  Bootcamp
+  CoWorking
+}
