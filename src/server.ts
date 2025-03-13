@@ -1,15 +1,34 @@
+import "dotenv/config";
 import express from "express";
-import dotenv from "dotenv";
+import cors from "cors";
+import cookieParser from "cookie-parser";
 
-dotenv.config();
+import { connectToDatabase } from "./config/db";
+import { PORT, FRONTEND_ORIGIN } from "./constants/env";
+import errorHandler from "./middleware/errorHandler";
+import catchError from "./utils/catchError";
+import { OK } from "./constants/http";
 
 const app = express();
-const port = process.env.PORT || 3000;
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(
+  cors({
+    origin: FRONTEND_ORIGIN,
+    credentials: true,
+  })
+);
+app.use(cookieParser());
 
 app.get("/", (req, res) => {
-  res.send("Hello World!");
+  res.status(OK).json({ status: "ok" });
 });
 
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+// Catch all errors that are not caught by the route handlers
+app.use(errorHandler);
+
+app.listen(PORT, async () => {
+  await connectToDatabase();
+  console.log(`Server is running on port ${PORT}`);
 });
