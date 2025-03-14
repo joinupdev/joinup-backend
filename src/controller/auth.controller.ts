@@ -3,7 +3,6 @@ import catchError from "../utils/catchError";
 import { createAccount, loginUser } from "../services/auth.service";
 import { CREATED, OK } from "../constants/http";
 import { setAuthCookie } from "../utils/cookies";
-import e from "express";
 
 const inputSchema = z.object({
   email: z.string().email().min(1).max(255),
