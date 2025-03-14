@@ -3,6 +3,8 @@ import prisma from "../config/db";
 import { JWT_REFRESH_SECRET, JWT_SECRET } from "../constants/env";
 import { hashValue } from "../utils/bcrypt";
 import { oneYearFromNow, thirtyDaysFromNow } from "../utils/date";
+import appAssert from "../utils/appAssert";
+import { CONFLICT } from "../constants/http";
 
 export type createAccountParams = {
   email: string;
@@ -18,9 +20,11 @@ export const createAccount = async (data: createAccountParams) => {
     },
   });
 
-  if (existingUser) {
-    throw new Error("User already exists");
-  }
+  // if (existingUser) {
+  //   throw new Error("User already exists");
+  // }
+
+  appAssert(!existingUser, CONFLICT, "User already exists");
 
   // hash password
   const hashedPassword = await hashValue(data.password);
@@ -48,7 +52,7 @@ export const createAccount = async (data: createAccountParams) => {
   const session = await prisma.session.create({
     data: {
       userId: user.id,
-        userAgent: data.userAgent,
+      userAgent: data.userAgent,
       expiresAt: thirtyDaysFromNow(),
     },
   });
@@ -73,7 +77,7 @@ export const createAccount = async (data: createAccountParams) => {
 
   // return user and tokens
   return {
-    user,
+    user: { user_created: user.email },
     accessToken,
     refreshToken,
   };
