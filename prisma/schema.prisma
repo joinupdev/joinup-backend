@@ -11,6 +11,7 @@ model User {
   id         String    @id @default(uuid())
   name       String?
   email      String    @unique
+  verified   Boolean   @default(false)
   mobileNo   String?
   password   String?
   profession String? // Optional field (Student / Working)
@@ -24,6 +25,33 @@ model User {
   updatedAt  DateTime? @updatedAt
 
   Event Event[]
+
+  verificationCode verificationCode[]
+
+  Session Session[]
+}
+
+model verificationCode {
+  id        String   @id @default(uuid())
+  type      VerificationCodeType
+  code      String?
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  expiresAt DateTime
+
+  @@index([userId])
+  createdAt DateTime @default(now())
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  userAgent String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Event {
@@ -116,4 +144,10 @@ enum EventType {
   Hackathon
   Bootcamp
   CoWorking
+}
+
+enum VerificationCodeType {
+  Email_Verification
+  Password_Reset
+  Mobile_Verification
 }
