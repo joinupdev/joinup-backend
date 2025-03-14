@@ -11,3 +11,17 @@ export const UNPROCESSABLE_ENTITY = 422;
 export const TOO_MANY_REQUESTS = 429;
 export const INTERNAL_SERVER_ERROR = 500;
 export const SERVICE_UNAVAILABLE = 503;
+
+export type HTTP_STATUS_CODES = 
+    | typeof OK
+    | typeof CREATED
+    | typeof NO_CONTENT
+    | typeof BAD_REQUEST
+    | typeof UNAUTHORIZED
+    | typeof FORBIDDEN
+    | typeof NOT_FOUND
+    | typeof CONFLICT
+    | typeof UNPROCESSABLE_ENTITY
+    | typeof TOO_MANY_REQUESTS
+    | typeof INTERNAL_SERVER_ERROR
+    | typeof SERVICE_UNAVAILABLE;
