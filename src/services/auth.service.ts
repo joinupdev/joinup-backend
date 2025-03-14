@@ -1,10 +1,9 @@
-import jwt from "jsonwebtoken";
 import prisma from "../config/db";
-import { JWT_REFRESH_SECRET, JWT_SECRET } from "../constants/env";
 import { compareHash, hashValue } from "../utils/bcrypt";
 import { oneYearFromNow, thirtyDaysFromNow } from "../utils/date";
 import appAssert from "../utils/appAssert";
 import { CONFLICT, UNAUTHORIZED } from "../constants/http";
+import { createJwtSession } from "../utils/jwtSession";
 
 export type createAccountParams = {
   email: string;
@@ -43,32 +42,9 @@ export const createAccount = async (data: createAccountParams) => {
   });
 
   // send email
-  // create session
-  const session = await prisma.session.create({
-    data: {
-      userId: user.id,
-      userAgent: data.userAgent,
-      expiresAt: thirtyDaysFromNow(),
-    },
-  });
 
-  // sign access token and refresh token
-  const refreshToken = jwt.sign({ sessionId: session.id }, JWT_REFRESH_SECRET, {
-    expiresIn: "30d",
-    audience: ["user"],
-  });
-
-  const accessToken = jwt.sign(
-    {
-      sessionId: session.id,
-      userId: user.id,
-    },
-    JWT_SECRET,
-    {
-      expiresIn: "15m",
-      audience: ["user"],
-    }
-  );
+  // create jwt session
+  const { accessToken, refreshToken } = await createJwtSession(user.id, data.userAgent);
 
   // return user and tokens
   return {
@@ -96,37 +72,7 @@ export const loginUser = async (data: createAccountParams) => {
   }
 
   // create session
-  const session = await prisma.session.create({
-    data: {
-      userId: user.id,
-      userAgent: data.userAgent,
-      expiresAt: thirtyDaysFromNow(),
-    },
-  });
-
-  // sign access token and refresh token
-  const refreshToken = jwt.sign(
-    {
-      sessionId: session.id,
-    },
-    JWT_REFRESH_SECRET,
-    {
-      expiresIn: "30d",
-      audience: ["user"],
-    }
-  );
-
-  const accessToken = jwt.sign(
-    {
-      sessionId: session.id,
-      userId: user.id,
-    },
-    JWT_SECRET,
-    {
-      expiresIn: "15m",
-      audience: ["user"],
-    }
-  );
+  const { accessToken, refreshToken } = await createJwtSession(user.id, data.userAgent);
 
   // return user and tokens
   return {
