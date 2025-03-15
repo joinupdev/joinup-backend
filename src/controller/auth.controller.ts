@@ -4,6 +4,8 @@ import {
   createAccount,
   loginUser,
   refreshUserAccessToken,
+  resetPassword,
+  sendPasswordResetEmail,
   verifyEmail,
 } from "../services/auth.service";
 import {
@@ -27,6 +29,12 @@ const inputSchema = z.object({
 });
 
 const verificationCodeSchema = z.string().min(1).max(255);
+const emailSchema = z.string().email().min(1).max(255);
+
+const resetPasswordSchema = z.object({
+  password: z.string().min(6).max(255),
+  verificationCode: verificationCodeSchema
+})
 
 export const registerHandler = catchError(async (req, res) => {
   // Validate Request
@@ -119,5 +127,25 @@ export const verifyEmailHandler = catchError(async (req, res) => {
   // Return Response
   return res.status(OK).json({
     message: "Email verified successfully",
+  });
+});
+
+export const forgotPasswordHandler = catchError(async (req, res) => {
+  const email = emailSchema.parse(req.body.email);
+
+  await sendPasswordResetEmail(email);
+
+  return res.status(OK).json({
+    "message": "Password reset email sent successfully",
+  });
+});
+
+export const resetPasswordHandler = catchError(async (req, res) => {
+  const request = resetPasswordSchema.parse(req.body);
+
+  await resetPassword(request);
+
+  return clearAuthCookie(res).status(OK).json({
+    "message": "Password reset successfully",
   });
 });
