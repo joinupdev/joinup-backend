@@ -1,16 +1,27 @@
 import { z } from "zod";
 import catchError from "../utils/catchError";
-import { createAccount, loginUser, refreshUserAccessToken } from "../services/auth.service";
-import { CREATED, OK, UNAUTHORIZED } from "../constants/http";
-import { clearAuthCookie, getAccessTokenCookieOptions, getRefreshTokenCookieOptions, setAuthCookie } from "../utils/cookies";
+import {
+  createAccount,
+  loginUser,
+  refreshUserAccessToken,
+} from "../services/auth.service";
+import {
+  CREATED,
+  OK,
+  UNAUTHORIZED,
+  UNPROCESSABLE_ENTITY,
+} from "../constants/http";
+import {
+  clearAuthCookie,
+  setAuthCookie,
+} from "../utils/cookies";
 import { verifyJwt } from "../utils/jwtSession";
 import prisma from "../config/db";
-import e from "express";
 import appAssert from "../utils/appAssert";
 
 const inputSchema = z.object({
   email: z.string().email().min(1).max(255),
-  password: z.string().min(6).max(255).optional(),
+  password: z.string().min(6).max(255),
   userAgent: z.string().optional(),
 });
 
@@ -21,21 +32,16 @@ export const registerHandler = catchError(async (req, res) => {
     userAgent: req.headers["user-agent"],
   });
 
-  // Ensure password is not undefined
-  const password = request.password || "defaultPassword";
-
   // Create User
-  const { user, accessToken, refreshToken } = await createAccount({
-    email: request.email,
-    password,
-    userAgent: request.userAgent,
-  });
+  const { user, accessToken, refreshToken } = await createAccount(request);
 
   // Return Response
-  setAuthCookie({ res, accessToken, refreshToken }).status(CREATED).json({
-    message: "Account created successfully",
-    email: user.email,
-  });
+  return setAuthCookie({ res, accessToken, refreshToken })
+    .status(CREATED)
+    .json({
+      message: "Account created successfully",
+      email: user.email,
+    });
 });
 
 export const loginHandler = catchError(async (req, res) => {
@@ -46,14 +52,10 @@ export const loginHandler = catchError(async (req, res) => {
   });
 
   // Login User
-  const { user, accessToken, refreshToken } = await loginUser({
-    email: request.email,
-    password: request.password || "defaultPassword",
-    userAgent: request.userAgent,
-  });
+  const { user, accessToken, refreshToken } = await loginUser(request);
 
   // Return Response
-  setAuthCookie({ res, accessToken, refreshToken }).status(OK).json({
+  return setAuthCookie({ res, accessToken, refreshToken }).status(OK).json({
     message: "Login successful",
     email: user.email,
   });
@@ -61,21 +63,31 @@ export const loginHandler = catchError(async (req, res) => {
 
 export const logoutHandler = catchError(async (req, res) => {
   const accessToken = req.cookies.accessToken;
+
+  // Verify JWT
   const { payload } = verifyJwt(accessToken);
 
-  if (payload) {
+  appAssert(payload, UNAUTHORIZED, "Invalid JWT");
+  appAssert(
+    typeof payload === "object" && payload !== null,
+    UNAUTHORIZED,
+    "Invalid JWT"
+  );
+  appAssert("sessionId" in payload, UNAUTHORIZED, "SessionId not found in JWT");
+
+  // Delete Session
+  try {
     await prisma.session.delete({
       where: {
-        id:
-          typeof payload === "object" && "sessionId" in payload
-            ? payload.sessionId
-            : undefined,
+        id: payload.sessionId,
       },
     });
+  } catch (error) {
+    appAssert(false, UNPROCESSABLE_ENTITY, "Failed to delete session");
   }
 
   // Return Response
-  clearAuthCookie(res).status(OK).json({
+  return clearAuthCookie(res).status(OK).json({
     message: "Logged out successfully",
   });
 });
@@ -83,16 +95,14 @@ export const logoutHandler = catchError(async (req, res) => {
 export const refreshTokenHandler = catchError(async (req, res) => {
   const refreshToken = req.cookies.refreshToken as string | undefined;
   appAssert(refreshToken, UNAUTHORIZED, "Missing Refresh Token");
-  
-  const { accessToken, newRefreshToken } = await refreshUserAccessToken(refreshToken);
 
-  if(newRefreshToken) {
-    res.cookie("refreshToken", newRefreshToken, getRefreshTokenCookieOptions());
-  }
+  const { accessToken, newRefreshToken } = await refreshUserAccessToken(
+    refreshToken
+  );
 
-  res.status(OK).cookie("accessToken", accessToken, getAccessTokenCookieOptions()).json({
-    message: "Token refreshed successfully",
-  });
-
+  return setAuthCookie({ res, accessToken, refreshToken: newRefreshToken })
+    .status(OK)
+    .json({
+      message: "Token refreshed successfully",
+    });
 });
-  
