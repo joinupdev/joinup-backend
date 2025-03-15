@@ -13,7 +13,7 @@ model User {
   email      String    @unique
   verified   Boolean   @default(false)
   mobileNo   String?
-  password   String?
+  password   String
   profession String? // Optional field (Student / Working)
   place      String? // Optional field (Institute name)
   jobTitle   JobTitle? // Designer / Developer

@@ -5,7 +5,7 @@ type AsyncController = (
   req: Request,
   res: Response,
   next: NextFunction
-) => Promise<void>;
+) => Promise<any>;
 
 // catchError is a higher-order function that takes in an AsyncController and returns an AsyncController.
 // The returned AsyncController catches any errors thrown by the original controller and passes them to the next middleware function.

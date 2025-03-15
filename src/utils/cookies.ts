@@ -7,7 +7,7 @@ export const REFRESH_PATH = "/api/auth/refresh";
 type Params = {
   res: Response;
   accessToken: string;
-  refreshToken: string;
+  refreshToken?: string;
 };
 
 const defaults: CookieOptions = {
@@ -27,10 +27,13 @@ export const getRefreshTokenCookieOptions = (): CookieOptions => ({
   path: REFRESH_PATH,
 });
 
-export const setAuthCookie = ({ res, accessToken, refreshToken }: Params) =>
-  res
-    .cookie("accessToken", accessToken, getAccessTokenCookieOptions())
-    .cookie("refreshToken", refreshToken, getRefreshTokenCookieOptions());
+export const setAuthCookie = ({ res, accessToken, refreshToken }: Params) => {
+  if (refreshToken) {
+    res.cookie("refreshToken", refreshToken, getRefreshTokenCookieOptions());
+  }
+  return res.cookie("accessToken", accessToken, getAccessTokenCookieOptions());
+  
+}
 
 export const clearAuthCookie = (res: Response) =>
   res.clearCookie("accessToken").clearCookie("refreshToken", {
