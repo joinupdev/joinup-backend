@@ -2,10 +2,22 @@ import prisma from "../config/db";
 import { compareHash, hashValue } from "../utils/bcrypt";
 import { oneYearFromNow, thirtyDaysFromNow } from "../utils/date";
 import appAssert from "../utils/appAssert";
-import { CONFLICT, UNAUTHORIZED } from "../constants/http";
+import {
+  CONFLICT,
+  NOT_FOUND,
+  UNAUTHORIZED,
+  UNPROCESSABLE_ENTITY,
+} from "../constants/http";
 import { createJwtSession, verifyJwt } from "../utils/jwtSession";
 import jwt from "jsonwebtoken";
-import { JWT_REFRESH_SECRET, JWT_SECRET } from "../constants/env";
+import {
+  FRONTEND_ORIGIN,
+  JWT_REFRESH_SECRET,
+  JWT_SECRET,
+} from "../constants/env";
+import { VerificationCodeType } from "@prisma/client";
+import { sendMail } from "../utils/sendMail";
+import { getVerifyEmailTemplate } from "../utils/emailTemplates";
 
 export type userAccountParams = {
   email: string;
@@ -43,7 +55,18 @@ export const createAccount = async (data: userAccountParams) => {
     },
   });
 
+  const url = `${FRONTEND_ORIGIN}/verify/email/${verificationCode.id}`;
+
   // send email
+  const { error } = await sendMail({
+    to: user.email,
+    ...getVerifyEmailTemplate(url),
+  });
+
+  // verify email sent
+  console.error(error);
+  // appAssert(!error, UNPROCESSABLE_ENTITY, "Failed to send email");
+
 
   // create jwt session
   const { accessToken, refreshToken } = await createJwtSession(
@@ -164,4 +187,47 @@ export const refreshUserAccessToken = async (refreshToken: string) => {
     accessToken,
     newRefreshToken,
   };
+};
+
+export const verifyEmail = async (code: string) => {
+  // get verification code
+  const validCode = await prisma.verificationCode.findUnique({
+    where: {
+      id: code,
+      type: VerificationCodeType.Email_Verification,
+      expiresAt: {
+        gte: new Date(),
+      },
+    },
+  });
+  appAssert(validCode, NOT_FOUND, "Invalid or Expired verification code");
+
+  // get user by id
+  const user = await prisma.user.findUnique({
+    where: {
+      id: validCode.userId,
+    },
+  });
+  appAssert(user, NOT_FOUND, "User not found");
+
+  // update user isEmailVerified
+  const updateUser = await prisma.user.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      verified: true,
+    },
+  });
+  appAssert(updateUser, UNPROCESSABLE_ENTITY, "Failed to verify email");
+
+  // delete verification code
+  await prisma.verificationCode.delete({
+    where: {
+      id: validCode.id,
+    },
+  });
+
+  // return user
+  return updateUser;
 };

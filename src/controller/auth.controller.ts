@@ -4,6 +4,7 @@ import {
   createAccount,
   loginUser,
   refreshUserAccessToken,
+  verifyEmail,
 } from "../services/auth.service";
 import {
   CREATED,
@@ -24,6 +25,8 @@ const inputSchema = z.object({
   password: z.string().min(6).max(255),
   userAgent: z.string().optional(),
 });
+
+const verificationCodeSchema = z.string().min(1).max(255);
 
 export const registerHandler = catchError(async (req, res) => {
   // Validate Request
@@ -105,4 +108,16 @@ export const refreshTokenHandler = catchError(async (req, res) => {
     .json({
       message: "Token refreshed successfully",
     });
+});
+
+export const verifyEmailHandler = catchError(async (req, res) => {
+  const verificationCode = verificationCodeSchema.parse(req.params.code);
+
+  // Verify Email
+  await verifyEmail(verificationCode);
+
+  // Return Response
+  return res.status(OK).json({
+    message: "Email verified successfully",
+  });
 });
