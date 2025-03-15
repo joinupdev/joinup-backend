@@ -34,7 +34,6 @@ model User {
 model verificationCode {
   id        String   @id @default(uuid())
   type      VerificationCodeType
-  code      String?
   user      User     @relation(fields: [userId], references: [id])
   userId    String
   expiresAt DateTime

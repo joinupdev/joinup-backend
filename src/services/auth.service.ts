@@ -1,10 +1,17 @@
 import prisma from "../config/db";
 import { compareHash, hashValue } from "../utils/bcrypt";
-import { oneYearFromNow, thirtyDaysFromNow } from "../utils/date";
+import {
+  fifteenMinutesFromNow,
+  fiveMinutesAgoFromNow,
+  oneYearFromNow,
+  thirtyDaysFromNow,
+} from "../utils/date";
 import appAssert from "../utils/appAssert";
 import {
   CONFLICT,
+  INTERNAL_SERVER_ERROR,
   NOT_FOUND,
+  TOO_MANY_REQUESTS,
   UNAUTHORIZED,
   UNPROCESSABLE_ENTITY,
 } from "../constants/http";
@@ -17,7 +24,10 @@ import {
 } from "../constants/env";
 import { VerificationCodeType } from "@prisma/client";
 import { sendMail } from "../utils/sendMail";
-import { getVerifyEmailTemplate } from "../utils/emailTemplates";
+import {
+  getPasswordResetTemplate,
+  getVerifyEmailTemplate,
+} from "../utils/emailTemplates";
 
 export type userAccountParams = {
   email: string;
@@ -49,7 +59,6 @@ export const createAccount = async (data: userAccountParams) => {
   const verificationCode = await prisma.verificationCode.create({
     data: {
       userId: user.id,
-      code: "123456",
       type: "Email_Verification",
       expiresAt: oneYearFromNow(),
     },
@@ -66,7 +75,6 @@ export const createAccount = async (data: userAccountParams) => {
   // verify email sent
   console.error(error);
   // appAssert(!error, UNPROCESSABLE_ENTITY, "Failed to send email");
-
 
   // create jwt session
   const { accessToken, refreshToken } = await createJwtSession(
@@ -230,4 +238,105 @@ export const verifyEmail = async (code: string) => {
 
   // return user
   return updateUser;
+};
+
+export const sendPasswordResetEmail = async (email: string) => {
+  // get the user by email
+  const user = await prisma.user.findUnique({
+    where: {
+      email: email,
+    },
+  });
+  appAssert(user, NOT_FOUND, "User not found");
+
+  //check email rate limit
+  const count = await prisma.verificationCode.count({
+    where: {
+      userId: user.id,
+      type: VerificationCodeType.Password_Reset,
+      createdAt: {
+        gte: fiveMinutesAgoFromNow(),
+      },
+    },
+  });
+
+  appAssert(
+    count <= 1,
+    TOO_MANY_REQUESTS,
+    "Too many requests, please try again later"
+  );
+
+  // create verification code
+  const verificationCode = await prisma.verificationCode.create({
+    data: {
+      userId: user.id,
+      type: VerificationCodeType.Password_Reset,
+      expiresAt: fifteenMinutesFromNow(),
+    },
+  });
+
+  // send verification email
+  const url = `{FRONTEND_ORIGIN}/password/reset?code=${
+    verificationCode.id
+  }&exp=${fiveMinutesAgoFromNow().getTime()}`;
+
+  const { data, error } = await sendMail({
+    to: user.email,
+    ...getPasswordResetTemplate(url),
+  });
+
+  appAssert(
+    data?.id,
+    INTERNAL_SERVER_ERROR,
+    `${error?.name} - ${error?.message}`
+  );
+  // return success
+  return {
+    url,
+    emailId: data.id,
+  };
+};
+
+type ResetPasswordParams = {
+  password: string;
+  verificationCode: string;
+};
+
+export const resetPassword = async ({
+  password,
+  verificationCode,
+}: ResetPasswordParams) => {
+  // get the verification code
+  const validCode = await prisma.verificationCode.findUnique({
+    where: {
+      id: verificationCode,
+      type: VerificationCodeType.Password_Reset,
+      expiresAt: {
+        gte: new Date(),
+      },
+    },
+  });
+  appAssert(validCode, NOT_FOUND, "Invalid or Expired verification code");
+
+  // update the users password
+  const updatedUser = await prisma.user.update({
+    where: {
+      id: validCode.userId,
+    },
+    data: {
+      password: await hashValue(password),
+    },
+  });
+
+  appAssert(updatedUser, UNPROCESSABLE_ENTITY, "Failed to reset password!");
+
+  // delete the verification code
+  await prisma.verificationCode.deleteMany({
+    where: {
+      id: validCode.id,
+    },
+  });
+
+  // delete all sessions
+  return updatedUser;
 };
