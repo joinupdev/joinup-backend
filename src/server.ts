@@ -25,8 +25,7 @@ app.get("/", (req, res) => {
   res.status(OK).json({ status: "ok" });
 });
 
-app.use("/api/auth", authRouter);
-// app.use("/api/users", require("./routes/users"));
+app.use("/auth", authRouter);
 
 // Catch all errors that are not caught by the route handlers
 app.use(errorHandler);

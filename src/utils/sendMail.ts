@@ -16,7 +16,6 @@ const getToEmail = (to: string) =>
 
 
 export const sendMail = async ({ to, subject, text, html }: Params) => {
-    console.log(EMAIL_SENDER)
     return await resend.emails.send({
         from: `JoinUp <${getFromEmail()}>`,
         to: getToEmail(to),
