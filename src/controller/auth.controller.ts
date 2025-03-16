@@ -1,50 +1,36 @@
-import { z } from "zod";
 import catchError from "../utils/catchError";
-import {
-  createAccount,
-  loginUser,
-  refreshUserAccessToken,
-  resetPassword,
-  sendPasswordResetEmail,
-  verifyEmail,
-} from "../services/auth.service";
 import {
   CREATED,
   OK,
   UNAUTHORIZED,
   UNPROCESSABLE_ENTITY,
 } from "../constants/http";
-import {
-  clearAuthCookie,
-  setAuthCookie,
-} from "../utils/cookies";
+import { clearAuthCookie, setAuthCookie } from "../utils/cookies";
 import { verifyJwt } from "../utils/jwtSession";
 import prisma from "../config/db";
 import appAssert from "../utils/appAssert";
-
-const inputSchema = z.object({
-  email: z.string().email().min(1).max(255),
-  password: z.string().min(6).max(255),
-  userAgent: z.string().optional(),
-});
-
-const verificationCodeSchema = z.string().min(1).max(255);
-const emailSchema = z.string().email().min(1).max(255);
-
-const resetPasswordSchema = z.object({
-  password: z.string().min(6).max(255),
-  verificationCode: verificationCodeSchema
-})
+import {
+  authSchema,
+  emailSchema,
+  resetPasswordSchema,
+  verificationCodeSchema,
+} from "../schema/auth.schema";
+import { registerUser } from "../services/register.service";
+import { loginUser } from "../services/login.service";
+import { refreshUserAccessToken } from "../services/refresh.service";
+import { verifyEmail } from "../services/verifyEmail.service";
+import { sendPasswordResetEmail } from "../services/forgotPassword.service";
+import { resetPassword } from "../services/resetPassword.service";
 
 export const registerHandler = catchError(async (req, res) => {
   // Validate Request
-  const request = inputSchema.parse({
+  const request = authSchema.parse({
     ...req.body,
     userAgent: req.headers["user-agent"],
   });
 
   // Create User
-  const { user, accessToken, refreshToken } = await createAccount(request);
+  const { user, accessToken, refreshToken } = await registerUser(request);
 
   // Return Response
   return setAuthCookie({ res, accessToken, refreshToken })
@@ -57,7 +43,7 @@ export const registerHandler = catchError(async (req, res) => {
 
 export const loginHandler = catchError(async (req, res) => {
   // Validate Request
-  const request = inputSchema.parse({
+  const request = authSchema.parse({
     ...req.body,
     userAgent: req.headers["user-agent"],
   });
@@ -76,15 +62,17 @@ export const logoutHandler = catchError(async (req, res) => {
   const accessToken = req.cookies.accessToken;
 
   // Verify JWT
-  const { payload } = verifyJwt(accessToken);
+  const { payload, error } = verifyJwt(accessToken);
 
-  appAssert(payload, UNAUTHORIZED, "Invalid JWT");
   appAssert(
-    typeof payload === "object" && payload !== null,
+    !error &&
+      payload &&
+      typeof payload === "object" &&
+      payload !== null &&
+      "sessionId" in payload,
     UNAUTHORIZED,
     "Invalid JWT"
   );
-  appAssert("sessionId" in payload, UNAUTHORIZED, "SessionId not found in JWT");
 
   // Delete Session
   try {
@@ -136,7 +124,7 @@ export const forgotPasswordHandler = catchError(async (req, res) => {
   await sendPasswordResetEmail(email);
 
   return res.status(OK).json({
-    "message": "Password reset email sent successfully",
+    message: "Password reset email sent successfully",
   });
 });
 
@@ -146,6 +134,6 @@ export const resetPasswordHandler = catchError(async (req, res) => {
   await resetPassword(request);
 
   return clearAuthCookie(res).status(OK).json({
-    "message": "Password reset successfully",
+    message: "Password reset successful",
   });
 });

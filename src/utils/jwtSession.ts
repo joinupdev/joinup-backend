@@ -5,8 +5,7 @@ import { JWT_REFRESH_SECRET, JWT_SECRET } from "../constants/env";
 
 const defaults: SignOptions = {
   audience: ["user"],
-}
-
+};
 
 export const createJwtSession = async (
   userId: string,
@@ -52,7 +51,6 @@ export const createJwtSession = async (
   };
 };
 
-
 export const verifyJwt = (
   token: string,
   options?: VerifyOptions & { secret: string }
@@ -61,10 +59,10 @@ export const verifyJwt = (
   try {
     const payload = jwt.verify(token, secret, {
       ...defaults,
-      ...verifyOpts,    
+      ...verifyOpts,
     });
     return { payload };
   } catch (error: any) {
     return { error: error.message };
   }
-}
+};
