@@ -1,6 +1,6 @@
 import prisma from "../config/db";
 import { UNAUTHORIZED } from "../constants/http";
-import { userAccountParams } from "../schema/auth.types";
+import { userAccountParams } from "../types/auth.types";
 import appAssert from "../utils/appAssert";
 import { compareHash } from "../utils/bcrypt";
 import { createJwtSession } from "../utils/jwtSession";
