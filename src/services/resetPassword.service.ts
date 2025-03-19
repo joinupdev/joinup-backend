@@ -1,6 +1,6 @@
 import { VerificationCodeType } from "@prisma/client";
 import prisma from "../config/db";
-import { ResetPasswordParams } from "../schema/auth.types";
+import { ResetPasswordParams } from "../types/auth.types";
 import { NOT_FOUND, UNPROCESSABLE_ENTITY } from "../constants/http";
 import appAssert from "../utils/appAssert";
 import { hashValue } from "../utils/bcrypt";
