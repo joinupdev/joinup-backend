@@ -48,7 +48,7 @@ export const sendPasswordResetEmail = async (email: string) => {
   // send verification email
   const url = `{FRONTEND_ORIGIN}/password/reset?code=${
     verificationCode.id
-  }&exp=${fiveMinutesAgoFromNow().getTime()}`;
+  }&exp=${fifteenMinutesFromNow().getTime()}`;
 
   const { data, error } = await sendMail({
     to: user.email,
