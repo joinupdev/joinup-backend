@@ -9,6 +9,7 @@ import { oneYearFromNow } from "../utils/date";
 import { getVerifyEmailTemplate } from "../utils/emailTemplates";
 import { createJwtSession } from "../utils/jwtSession";
 import { sendMail } from "../utils/sendMail";
+import logger from "../config/logger";
 
 export const registerUser = async (data: userAccountParams) => {
   // verify existing user doesn't exist
@@ -54,7 +55,7 @@ export const registerUser = async (data: userAccountParams) => {
     ...getVerifyEmailTemplate(url),
   });
 
-  if (error) console.error(error);
+  if (error) logger.error("Error sending email", { error });
 
   // create jwt session
   const { accessToken, refreshToken } = await createJwtSession(
