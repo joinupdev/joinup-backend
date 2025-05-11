@@ -1,6 +1,6 @@
 {
   "name": "joinup-backend",
-  "version": "3.3.1",
+  "version": "3.4.0",
   "description": "Backend source code for joinup",
   "homepage": "https://github.com/achhayapathak/joinup-backend#readme",
   "bugs": {
@@ -15,9 +15,9 @@
   "type": "commonjs",
   "main": "dist/server.js",
   "scripts": {
-    "build": "prisma generate && tsc && cp ./package.json ./dist/package.json",
-    "dev": "nodemon --exec ts-node --files src/server.ts index.d.ts",
-    "start": "tsc && node dist/server.js",
+    "build": "rm -rf dist && prisma generate && tsc && cp ./package.json ./dist/package.json",
+    "dev": "prisma generate && nodemon --exec ts-node --files src/server.ts index.d.ts",
+    "start": "node dist/server.js",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
