@@ -1,6 +1,6 @@
 {
   "name": "joinup-backend",
-  "version": "3.5.0",
+  "version": "3.6.0",
   "description": "Backend source code for joinup",
   "homepage": "https://github.com/achhayapathak/joinup-backend#readme",
   "bugs": {
@@ -48,6 +48,7 @@
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "resend": "^4.1.2",
+    "winston": "^3.17.0",
     "zod": "^3.24.2"
   }
 }
