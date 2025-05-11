@@ -3,6 +3,7 @@ import { BAD_REQUEST, INTERNAL_SERVER_ERROR } from "../constants/http";
 import { z } from "zod";
 import { AppError } from "../utils/AppError";
 import { clearAuthCookie, REFRESH_PATH } from "../utils/cookies";
+import logger from "../config/logger";
 
 // Zod error handler
 const handleZodError = (err: z.ZodError, res: Response) => {
@@ -26,8 +27,7 @@ const handleAppError = (err: AppError, res: Response) => {
 
 // Error handler middleware
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  console.log(`PATH: ${req.path}`);
-  console.error(err);
+  logger.error(`{path: ${req.path}, message: ${err.message}}`);
 
   if (req.path === REFRESH_PATH) {
     clearAuthCookie(res);
