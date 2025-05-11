@@ -2,7 +2,7 @@ import { VerificationCodeType } from "@prisma/client";
 import prisma from "../config/db";
 import { FRONTEND_ORIGIN } from "../constants/env";
 import { CONFLICT } from "../constants/http";
-import { userAccountParams } from "../schema/auth.types";
+import { userAccountParams } from "../types/auth.types";
 import appAssert from "../utils/appAssert";
 import { hashValue } from "../utils/bcrypt";
 import { oneYearFromNow } from "../utils/date";
@@ -30,6 +30,13 @@ export const registerUser = async (data: userAccountParams) => {
     },
   });
 
+  // create user profile
+  await prisma.userProfile.create({
+    data: {
+      userId: user.id,
+    },
+  });
+
   // create verification code
   const verificationCode = await prisma.verificationCode.create({
     data: {
@@ -47,8 +54,7 @@ export const registerUser = async (data: userAccountParams) => {
     ...getVerifyEmailTemplate(url),
   });
 
-  if(error)
-    console.error(error);
+  if (error) console.error(error);
 
   // create jwt session
   const { accessToken, refreshToken } = await createJwtSession(

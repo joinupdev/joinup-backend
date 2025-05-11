@@ -5,6 +5,7 @@ export type userAccountParams = {
 };
 
 export type ResetPasswordParams = {
-    password: string;
-    verificationCode: string;
-  };
+  password: string;
+  verificationCode: string;
+};
+

@@ -8,38 +8,55 @@ datasource db {
 }
 
 model User {
-  id         String    @id @default(uuid())
-  name       String?
-  email      String    @unique
-  verified   Boolean   @default(false)
-  mobileNo   String?
-  password   String
-  profession String? // Optional field (Student / Working)
-  place      String? // Optional field (Institute name)
-  jobTitle   JobTitle? // Designer / Developer
-  gender     Gender?
-  linkedin   String? // Optional field
-  type       UserType  @default(user)
-  bookings   Booking[]
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime? @updatedAt
-
-  Event Event[]
+  id        String       @id @default(uuid())
+  email     String       @unique
+  password  String
+  mobileNo  String?
+  verified  Boolean      @default(false)
+  type      UserType     @default(user)
+  profile   UserProfile?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime?    @updatedAt
 
   verificationCode verificationCode[]
+  Session          Session[]
+  Event            Event[]
+  Booking          Booking[]
 
-  Session Session[]
+  @@index([email])
+}
+
+model UserProfile {
+  id                 String      @id @default(uuid())
+  user               User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             String      @unique
+  name               String?
+  profession         Profession? // Optional field (Student / Working)
+  gender             Gender?
+  jobTitle           JobTitle? // Designer / Developer
+  place              String? // Optional field (Institute name)
+  linkedin           String? // Optional field
+  linkedinVisibility Boolean     @default(false)
+  github             String? // Optional field
+  twitter            String? // Optional field
+  website            String? // Optional field
+  bio                String? // Optional field
+  avatar             String? // Optional field
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime?   @updatedAt
+
+  @@index([userId])
 }
 
 model verificationCode {
-  id        String   @id @default(uuid())
+  id        String               @id @default(uuid())
   type      VerificationCodeType
-  user      User     @relation(fields: [userId], references: [id])
+  user      User                 @relation(fields: [userId], references: [id])
   userId    String
   expiresAt DateTime
+  createdAt DateTime             @default(now())
 
   @@index([userId])
-  createdAt DateTime @default(now())
 }
 
 model Session {
@@ -149,4 +166,9 @@ enum VerificationCodeType {
   Email_Verification
   Password_Reset
   Mobile_Verification
+}
+
+enum Profession {
+  Student
+  Working
 }
