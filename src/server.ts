@@ -28,7 +28,7 @@ app.use(cookieParser());
 app.use(request);
 
 app.get("/", (req, res) => {
-  res.status(OK).json({ status: "ok" });
+  res.status(OK).json({ message: "Server is running" });
 });
 
 app.use("/auth", authRouter);
@@ -41,7 +41,6 @@ app.use("/session", authenticate, sessionRouter);
 app.use(errorHandler);
 
 app.listen(PORT, async () => {
-  logger.info(`TESTING`);
   await connectToDatabase();
   logger.info(`Server is running on port ${PORT}`);
 });
