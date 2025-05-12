@@ -1,4 +1,4 @@
-import { VerificationCodeType } from "@prisma/client";
+import { VerificationCodeType } from "../../generated/prisma";
 import prisma from "../config/db";
 import { ResetPasswordParams } from "../types/auth.types";
 import { NOT_FOUND, UNPROCESSABLE_ENTITY } from "../constants/http";

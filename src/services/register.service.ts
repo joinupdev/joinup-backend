@@ -1,4 +1,3 @@
-import { VerificationCodeType } from "@prisma/client";
 import prisma from "../config/db";
 import { FRONTEND_ORIGIN } from "../constants/env";
 import { CONFLICT } from "../constants/http";
@@ -10,6 +9,7 @@ import { getVerifyEmailTemplate } from "../utils/emailTemplates";
 import { createJwtSession } from "../utils/jwtSession";
 import { sendMail } from "../utils/sendMail";
 import logger from "../config/logger";
+import { VerificationCodeType } from "../../generated/prisma";
 
 export const registerUser = async (data: userAccountParams) => {
   // verify existing user doesn't exist
