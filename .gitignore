@@ -130,3 +130,6 @@ dist
 .pnp.*
 .vscode
 .vscode/*
+
+# Prisma
+generated/prisma

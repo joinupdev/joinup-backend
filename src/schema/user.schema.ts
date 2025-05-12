@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { Gender, Profession, JobTitle } from "@prisma/client";
+import { Gender, Profession, JobTitle } from "../../generated/prisma";
 
 export const updateUserProfileSchema = z
   .object({
