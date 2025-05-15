@@ -189,6 +189,116 @@
           }
         }
       ]
+    },
+    {
+      "name": "event",
+      "item": [
+        {
+          "name": "Get Events",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/event?profession=design&location=delhi&eventType=workshop",
+              "host": ["{{baseUrl}}"],
+              "path": ["event"],
+              "query": [
+                {
+                  "key": "profession",
+                  "value": "design"
+                },
+                {
+                  "key": "location",
+                  "value": "delhi"
+                },
+                {
+                  "key": "eventType",
+                  "value": "workshop"
+                }
+              ]
+            },
+            "description": "Get events with optional filters for profession, location, and event type"
+          }
+        },
+        {
+          "name": "Create Event",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Medical Workshop\",\n  \"description\": \"Workshop for medical professionals\",\n  \"location\": \"Delhi\",\n  \"date\": \"2025-05-01T10:00:00Z\",\n  \"profession\": \"doctor\",\n  \"eventType\": \"workshop\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/event",
+              "host": ["{{baseUrl}}"],
+              "path": ["event"]
+            },
+            "description": "Create a new event (requires authentication)"
+          }
+        },
+        {
+          "name": "Get Event by ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/event/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "123456",
+                  "description": "Event ID"
+                }
+              ]
+            },
+            "description": "Get a specific event by its ID"
+          }
+        },
+        {
+          "name": "Update Event",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Updated Medical Workshop\",\n  \"description\": \"Updated workshop for medical professionals\",\n  \"location\": \"Mumbai\",\n  \"date\": \"2025-05-01T11:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/event/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "123456",
+                  "description": "Event ID"
+                }
+              ]
+            },
+            "description": "Update an existing event (requires authentication)"
+          }
+        },
+        {
+          "name": "Delete Event",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/event/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "123456",
+                  "description": "Event ID"
+                }
+              ]
+            },
+            "description": "Delete an event (requires authentication)"
+          }
+        }
+      ]
     }
   ]
 }

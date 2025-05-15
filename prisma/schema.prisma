@@ -12,7 +12,6 @@ model User {
   id        String       @id @default(uuid())
   email     String       @unique
   password  String
-  mobileNo  String?
   verified  Boolean      @default(false)
   type      UserType     @default(user)
   profile   UserProfile?
@@ -32,21 +31,37 @@ model UserProfile {
   user               User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId             String      @unique
   name               String?
+  phoneNumber        String?
   profession         Profession? // Optional field (Student / Working)
   gender             Gender?
   jobTitle           JobTitle? // Designer / Developer
   place              String? // Optional field (Institute name)
-  linkedin           String? // Optional field
-  linkedinVisibility Boolean     @default(false)
-  github             String? // Optional field
-  twitter            String? // Optional field
-  website            String? // Optional field
+  socialLinks        SocialLink[]
   bio                String? // Optional field
   avatar             String? // Optional field
   createdAt          DateTime    @default(now())
   updatedAt          DateTime?   @updatedAt
 
   @@index([userId])
+}
+
+model SocialLink {
+  id        String      @id @default(uuid())
+  type      SocialLinkType
+  link      String
+  isVisible Boolean     @default(false)
+  UserProfile UserProfile @relation(fields: [userId], references: [id])
+  userId    String
+}
+
+enum SocialLinkType {
+  LinkedIn
+  Twitter
+  GitHub
+  Website
+  Instagram
+  Facebook
+  Peerlist
 }
 
 model verificationCode {
@@ -74,55 +89,80 @@ model Session {
 model Event {
   id              String        @id @default(uuid())
   name            String
-  description     String
-  category        EventCategory
+  description     String // Maps to why attend section
+  poster          String? // URL of the poster image
   type            EventType // Meetup, conference, etc
-  location        LocationType
-  completeAddress String // Web URL / Complete address
-  host            User          @relation(fields: [hostId], references: [id])
-  hostId          String
-  speakers        Speaker[] // Relation to Host model
-  seats           Int
-  isPaid          Boolean // Paid/Free
-  ticketPrice     Float? // Optional if isPaid is false
-  duration        Int // In hours
+  category        EventCategory // Design, Development, Both
   startTime       DateTime
+  duration        Int // In hours
+  location        LocationType // Online, Physical
+  completeAddress String // Web URL / Complete address
+  hosts           Speaker[]     @relation("EventHost") // Relation to Host model
+  speakers        Speaker[]     @relation("EventSpeakers") // Relation to Speaker model
+  isPaid          Boolean // Paid/Free
+  seats           Int
+  ticketPrice     Float[] // Optional if isPaid is false
+  accountNumber   String?
+  accountName     String?
+  IFSCCode        String?
   termsConditions String?
-  faq             String?
   bookings        Booking[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime?     @updatedAt
+  User            User?         @relation(fields: [userId], references: [id])
+  userId          String?
+  Speaker         Speaker[]
 }
 
 model Speaker {
-  id          String    @id @default(uuid())
-  name        String
-  linkedin    String?
-  description String
-  event       Event     @relation(fields: [eventId], references: [id])
-  eventId     String
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime? @updatedAt
+  id             String      @id @default(uuid())
+  name           String
+  profession     Profession? // Optional field (Student / Working)
+  linkedin       String?
+  twitter        String?
+  avatar         String?
+  type           SpeakerType // Host, Speaker
+  event          Event       @relation(fields: [eventId], references: [id])
+  eventId        String
+  hostedEvents   Event[]     @relation("EventHost")
+  speakingEvents Event[]     @relation("EventSpeakers")
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime?   @updatedAt
+}
+
+enum SpeakerType {
+  Host
+  Speaker
 }
 
 model Booking {
-  id             String        @id @default(uuid())
-  user           User          @relation(fields: [userId], references: [id])
-  userId         String
-  event          Event         @relation(fields: [eventId], references: [id])
-  eventId        String
-  qrCode         String
-  paymentReceipt String?
-  status         BookingStatus // Pending, Approved, Rejected
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime?     @updatedAt
+  id              String         @id @default(uuid())
+  user            User           @relation(fields: [userId], references: [id])
+  userId          String
+  event           Event          @relation(fields: [eventId], references: [id])
+  eventId         String
+  qrCode          String
+  price           Float
+  paymentMethod   PaymentMethod? // UPI, Card, Bank Transfer
+  paymentReceipt  String?
+  razorpayOrderId String?
+  status          BookingStatus // Pending, Approved, Rejected
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime?      @updatedAt
 
   @@unique([userId, eventId])
+}
+
+enum PaymentMethod {
+  UPI
+  Card
+  BankTransfer
 }
 
 enum JobTitle {
   Designer
   Developer
+  Founder
 }
 
 enum Gender {
@@ -139,6 +179,7 @@ enum UserType {
 enum EventCategory {
   Design
   Development
+  Founders
   Both
 }
 
