@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import prisma from "../config/db";
 import { NOT_FOUND, OK } from "../constants/http";
 import { USER_PROFILE_SELECT } from "../constants/prisma";

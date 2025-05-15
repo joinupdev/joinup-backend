@@ -13,6 +13,7 @@ import userRouter from "./routes/user.route";
 import sessionRouter from "./routes/session.route";
 import logger from "./config/logger";
 import request from "./middleware/request";
+import eventRouter from "./routes/event.route";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use("/auth", authRouter);
 // protected routes
 app.use("/user", authenticate, userRouter);
 app.use("/session", authenticate, sessionRouter);
+app.use("/event", eventRouter);
 
 // Catch all errors that are not caught by the route handlers
 app.use(errorHandler);

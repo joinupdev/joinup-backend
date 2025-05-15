@@ -1,6 +1,6 @@
 {
   "name": "joinup-backend",
-  "version": "3.8.1",
+  "version": "3.9.0",
   "description": "Backend source code for joinup",
   "homepage": "https://github.com/achhayapathak/joinup-backend#readme",
   "bugs": {
@@ -16,7 +16,7 @@
   "main": "dist/server.js",
   "scripts": {
     "build": "rm -rf dist && prisma generate && tsc && cp ./package.json ./dist/package.json",
-    "dev": "prisma generate && nodemon --exec ts-node --files src/server.ts index.d.ts",
+    "dev": "nodemon --exec ts-node --files src/server.ts index.d.ts",
     "start": "node dist/server.js",
     "lint": "eslint . --ext .ts",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -39,6 +39,7 @@
     "typescript-eslint": "^8.26.1"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.808.0",
     "@prisma/client": "^6.5.0",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.7",
@@ -47,6 +48,7 @@
     "express": "^4.21.2",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.2",
     "resend": "^4.1.2",
     "winston": "^3.17.0",
     "zod": "^3.24.2"
