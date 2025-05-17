@@ -21,7 +21,7 @@ import { refreshUserAccessToken } from "../services/refresh.service";
 import { verifyEmail } from "../services/verifyEmail.service";
 import { sendPasswordResetEmail } from "../services/forgotPassword.service";
 import { resetPassword } from "../services/resetPassword.service";
-
+import logger from "../config/logger";
 export const registerHandler = catchError(async (req, res) => {
   // Validate Request
   const request = authSchema.parse({
@@ -82,6 +82,7 @@ export const logoutHandler = catchError(async (req, res) => {
       },
     });
   } catch (error) {
+    logger.error(error as string);
     appAssert(false, UNPROCESSABLE_ENTITY, "Failed to delete session");
   }
 

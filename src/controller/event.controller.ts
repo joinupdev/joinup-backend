@@ -1,36 +1,188 @@
-import { OK } from "../constants/http";
+import { BAD_REQUEST, FORBIDDEN, NOT_FOUND, OK } from "../constants/http";
 import logger from "../config/logger";
 import catchError from "../utils/catchError";
+import appAssert from "../utils/appAssert";
+import {
+  EventCategory,
+  EventType,
+  LocationType,
+  Profession,
+} from "../../generated/prisma";
+import prisma from "../config/db";
+import AppErrorCode from "../constants/appErrorCode";
+import { getEvents } from "../services/getEvents.service";
+import { createEvent } from "../services/createEvent.service";
+import { eventResponse } from "../utils/eventResponse";
+import { Event } from "../types/event.types";
+import { deleteEvent } from "../services/deleteEvent.service";
+import { updateEvent } from "../services/updateEvent.service";
 
-const getEventHandler = catchError(async (req, res) => {
+export const getEventHandler = catchError(async (req, res) => {
   const profession = req.query.profession as string;
   const location = req.query.location as string;
   const eventType = req.query.eventType as string;
-  logger.info(`Getting events by profession: ${profession}, location: ${location}, event type: ${eventType}`);
-  res.status(OK).json({ message: "Events fetched successfully" });
+  logger.info(
+    `Getting events by profession: ${profession}, location: ${location}, event type: ${eventType}`
+  );
+
+  appAssert(
+    Object.values(EventCategory).includes(profession as EventCategory),
+    BAD_REQUEST,
+    "Invalid profession"
+  );
+
+  appAssert(
+    Object.values(LocationType).includes(location as LocationType),
+    BAD_REQUEST,
+    "Invalid location"
+  );
+
+  appAssert(
+    Object.values(EventType).includes(eventType as EventType),
+    BAD_REQUEST,
+    "Invalid event type"
+  );
+
+  const events = await getEvents(
+    profession as Profession,
+    location as LocationType,
+    eventType as EventType
+  );
+
+  res.status(OK).json({ events });
 });
 
-const createEventHandler = catchError(async (req, res) => {
+export const createEventHandler = catchError(async (req, res) => {
   logger.info("Creating event");
-  res.status(OK).json({ message: "Event created successfully" });
+
+  // Parse JSON data from form
+  let eventData;
+  let hosts = [];
+  let guests = [];
+
+  try {
+    eventData = JSON.parse(req.body.eventData);
+    if (eventData.hosts) hosts = eventData.hosts;
+    if (eventData.guests) guests = eventData.guests;
+  } catch {
+    appAssert(false, BAD_REQUEST, "Invalid event data format");
+  }
+
+  // Create event in the database
+  const event = await createEvent(eventData, hosts, guests, req);
+
+  // Generate presigned URLs for event poster and speakers/hosts avatars
+  const enrichedEvent = await eventResponse(event as Event);
+
+  // Return the event with presigned URLs
+  res.status(OK).json({ event: enrichedEvent });
 });
 
-const getEventByIdHandler = catchError(async (req, res) => {
+export const getEventByIdHandler = catchError(async (req, res) => {
   const { id } = req.params;
   logger.info(`Getting event by id: ${id}`);
-  res.status(OK).json({ message: "Event fetched successfully" });
+  const event = await prisma.event.findUnique({
+    where: {
+      id: id,
+    },
+    include: {
+      guests: true,
+      hosts: true,
+    },
+  });
+
+  appAssert(event, NOT_FOUND, "Event not found");
+
+  // Generate presigned URLs for event poster and speakers/hosts avatars
+  const enrichedEvent = await eventResponse(event as Event);
+
+  res.status(OK).json({ event: enrichedEvent });
 });
 
-const updateEventHandler = catchError(async (req, res) => {
+export const updateEventHandler = catchError(async (req, res) => {
   const { id } = req.params;
   logger.info(`Updating event by id: ${id}`);
-  res.status(OK).json({ message: "Event updated successfully" });
+
+  // First check if the event exists and belongs to the logged-in user
+  const existingEvent = await prisma.event.findUnique({
+    where: { id },
+    include: {
+      hosts: true,
+      guests: true,
+    },
+  });
+
+  appAssert(existingEvent, NOT_FOUND, "Event not found");
+
+  // Authorization check: Verify the logged-in user is the event creator
+  appAssert(
+    existingEvent.userId === req.userId,
+    FORBIDDEN,
+    "You are not authorized to update this event. Only the event creator can update it.",
+    AppErrorCode.Unauthorized
+  );
+
+  // Handle multipart form data if present, otherwise handle JSON
+  let eventData;
+  let hosts = [];
+  let guests = [];
+
+  // Check if this is a multipart request (has files)
+  const hasFiles = req.files && Object.keys(req.files).length > 0;
+
+  if (hasFiles) {
+    // Parse JSON data from form
+    try {
+      eventData = JSON.parse(req.body.eventData || "{}");
+      if (eventData.hosts) hosts = eventData.hosts;
+      if (eventData.guests) guests = eventData.guests;
+    } catch {
+      return res
+        .status(BAD_REQUEST)
+        .json({ error: "Invalid event data format" });
+    }
+  } else {
+    // Direct JSON payload
+    eventData = req.body;
+    if (eventData.hosts) hosts = eventData.hosts;
+    if (eventData.guests) guests = eventData.guests;
+  }
+
+  const updatedEvent = await updateEvent(
+    eventData,
+    hosts,
+    guests,
+    req,
+    existingEvent as Event
+  );
+
+  // Generate presigned URLs for the event poster and all avatars
+  const enrichedEvent = await eventResponse(updatedEvent as Event);
+
+  res.status(OK).json({ event: enrichedEvent });
 });
 
-const deleteEventHandler = catchError(async (req, res) => {
+export const deleteEventHandler = catchError(async (req, res) => {
   const { id } = req.params;
   logger.info(`Deleting event by id: ${id}`);
+
+  // Find the event first to verify it exists
+  const event = await prisma.event.findUnique({
+    where: { id },
+    include: { guests: true, hosts: true },
+  });
+
+  appAssert(event, NOT_FOUND, "Event not found");
+
+  // Authorization check: Verify the logged-in user is the event creator
+  appAssert(
+    event.userId === req.userId,
+    FORBIDDEN,
+    "You are not authorized to delete this event. Only the event creator can delete it.",
+    AppErrorCode.Unauthorized
+  );
+
+  await deleteEvent(event as Event);
+
   res.status(OK).json({ message: "Event deleted successfully" });
 });
-
-export { getEventHandler, createEventHandler, getEventByIdHandler, updateEventHandler, deleteEventHandler };
