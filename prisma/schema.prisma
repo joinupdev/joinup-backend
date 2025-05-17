@@ -27,31 +27,31 @@ model User {
 }
 
 model UserProfile {
-  id                 String      @id @default(uuid())
-  user               User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId             String      @unique
-  name               String?
-  phoneNumber        String?
-  profession         Profession? // Optional field (Student / Working)
-  gender             Gender?
-  jobTitle           JobTitle? // Designer / Developer
-  place              String? // Optional field (Institute name)
-  socialLinks        SocialLink[]
-  bio                String? // Optional field
-  avatar             String? // Optional field
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime?   @updatedAt
+  id          String       @id @default(uuid())
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String       @unique
+  name        String?
+  phoneNumber String?
+  profession  Profession? // Optional field (Student / Working)
+  gender      Gender?
+  jobTitle    JobTitle? // Designer / Developer
+  place       String? // Optional field (Institute name)
+  socialLinks SocialLink[]
+  bio         String? // Optional field
+  avatar      String? // Optional field
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime?    @updatedAt
 
   @@index([userId])
 }
 
 model SocialLink {
-  id        String      @id @default(uuid())
-  type      SocialLinkType
-  link      String
-  isVisible Boolean     @default(false)
-  UserProfile UserProfile @relation(fields: [userId], references: [id])
-  userId    String
+  id          String         @id @default(uuid())
+  type        SocialLinkType
+  link        String
+  isVisible   Boolean        @default(false)
+  UserProfile UserProfile    @relation(fields: [userId], references: [id])
+  userId      String
 }
 
 enum SocialLinkType {
@@ -98,7 +98,7 @@ model Event {
   location        LocationType // Online, Physical
   completeAddress String // Web URL / Complete address
   hosts           Speaker[]     @relation("EventHost") // Relation to Host model
-  speakers        Speaker[]     @relation("EventSpeakers") // Relation to Speaker model
+  guests          Speaker[]     @relation("EventGuests") // Relation to Speaker model
   isPaid          Boolean // Paid/Free
   seats           Int
   ticketPrice     Float[] // Optional if isPaid is false
@@ -115,24 +115,24 @@ model Event {
 }
 
 model Speaker {
-  id             String      @id @default(uuid())
-  name           String
-  profession     Profession? // Optional field (Student / Working)
-  linkedin       String?
-  twitter        String?
-  avatar         String?
-  type           SpeakerType // Host, Speaker
-  event          Event       @relation(fields: [eventId], references: [id])
-  eventId        String
-  hostedEvents   Event[]     @relation("EventHost")
-  speakingEvents Event[]     @relation("EventSpeakers")
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime?   @updatedAt
+  id          String      @id @default(uuid())
+  name        String
+  profession  String?
+  linkedin    String?
+  twitter     String?
+  avatar      String?
+  type        SpeakerType // Host, Guest
+  event       Event       @relation(fields: [eventId], references: [id])
+  eventId     String
+  hostEvents  Event[]     @relation("EventHost")
+  guestEvents Event[]     @relation("EventGuests")
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime?   @updatedAt
 }
 
 enum SpeakerType {
   Host
-  Speaker
+  Guest
 }
 
 model Booking {
@@ -155,7 +155,8 @@ model Booking {
 
 enum PaymentMethod {
   UPI
-  Card
+  CreditCard
+  DebitCard
   BankTransfer
 }
 
@@ -180,7 +181,6 @@ enum EventCategory {
   Design
   Development
   Founders
-  Both
 }
 
 enum LocationType {
@@ -198,9 +198,9 @@ enum EventType {
   Meetup
   Conference
   Workshop
-  Webinar
+  // Webinar
   Hackathon
-  Bootcamp
+  // Bootcamp
   CoWorking
 }
 
@@ -212,5 +212,5 @@ enum VerificationCodeType {
 
 enum Profession {
   Student
-  Working
+  Professional
 }

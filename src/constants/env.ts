@@ -18,3 +18,7 @@ export const JWT_REFRESH_SECRET = getEnv('JWT_REFRESH_SECRET');
 export const EMAIL_SENDER = getEnv('EMAIL_SENDER');
 export const NODE_ENV = getEnv('NODE_ENV', 'development');
 export const RESEND_API_KEY = getEnv('RESEND_API_KEY');
+export const AWS_REGION = getEnv('AWS_REGION');
+export const AWS_ACCESS_KEY_ID = getEnv('AWS_ACCESS_KEY_ID');
+export const AWS_SECRET_ACCESS_KEY = getEnv('AWS_SECRET_ACCESS_KEY');
+export const BUCKET_NAME = getEnv('BUCKET_NAME');

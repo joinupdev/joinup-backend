@@ -194,46 +194,78 @@
       "name": "event",
       "item": [
         {
-          "name": "Get Events",
+          "name": "Get Events by Category",
           "request": {
             "method": "GET",
             "url": {
-              "raw": "{{baseUrl}}/event?profession=design&location=delhi&eventType=workshop",
+              "raw": "{{baseUrl}}/event?profession=Design&location=Online&eventType=Meetup",
               "host": ["{{baseUrl}}"],
               "path": ["event"],
               "query": [
                 {
                   "key": "profession",
-                  "value": "design"
+                  "value": "Design",
+                  "description": "EventCategory enum value: Design, Development, or Founders"
                 },
                 {
                   "key": "location",
-                  "value": "delhi"
+                  "value": "Online",
+                  "description": "LocationType enum value: Online or Physical"
                 },
                 {
                   "key": "eventType",
-                  "value": "workshop"
+                  "value": "Meetup",
+                  "description": "EventType enum value: Meetup, Conference, Workshop, Hackathon, or CoWorking"
                 }
               ]
             },
-            "description": "Get events with optional filters for profession, location, and event type"
+            "description": "Get events with required filters for category (profession), location, and event type"
           }
         },
         {
-          "name": "Create Event",
+          "name": "Create Event (Multipart Form)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [],
             "body": {
-              "mode": "raw",
-              "raw": "{\n  \"title\": \"Medical Workshop\",\n  \"description\": \"Workshop for medical professionals\",\n  \"location\": \"Delhi\",\n  \"date\": \"2025-05-01T10:00:00Z\",\n  \"profession\": \"doctor\",\n  \"eventType\": \"workshop\"\n}"
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "eventData",
+                  "value": "{\n  \"name\": \"Design Meetup 2025\",\n  \"description\": \"A meetup for designers to network and learn from each other\",\n  \"type\": \"Meetup\",\n  \"category\": \"Design\",\n  \"startTime\": \"2025-06-15T10:00:00Z\",\n  \"duration\": 3,\n  \"location\": \"Online\",\n  \"completeAddress\": \"https://zoom.us/j/123456789\",\n  \"isPaid\": false,\n  \"seats\": 100,\n  \"ticketPrice\": [0],\n  \"hosts\": [\n    {\n      \"name\": \"John Doe\",\n      \"profession\": \"Professional\",\n      \"linkedin\": \"https://linkedin.com/in/johndoe\",\n      \"twitter\": \"https://twitter.com/johndoe\"\n    }\n  ],\n  \"guests\": [\n    {\n      \"name\": \"Jane Smith\",\n      \"profession\": \"Professional\",\n      \"linkedin\": \"https://linkedin.com/in/janesmith\",\n      \"twitter\": \"https://twitter.com/janesmith\"\n    }\n  ]\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "poster",
+                  "type": "file",
+                  "src": "/path/to/your/poster-image.jpg",
+                  "description": "Event poster image (JPG/PNG)"
+                },
+                {
+                  "key": "hostAvatars",
+                  "type": "file",
+                  "src": "/path/to/your/host-avatar.jpg",
+                  "description": "Avatar for the first host"
+                },
+                {
+                  "key": "guestAvatars",
+                  "type": "file",
+                  "src": "/path/to/your/guest-avatar.jpg",
+                  "description": "Avatar for the first guest"
+                }
+              ],
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
             },
             "url": {
               "raw": "{{baseUrl}}/event",
               "host": ["{{baseUrl}}"],
               "path": ["event"]
             },
-            "description": "Create a new event (requires authentication)"
+            "description": "Create a new event with multipart form data including images (requires authentication)"
           }
         },
         {
@@ -247,22 +279,22 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "123456",
-                  "description": "Event ID"
+                  "value": "event-uuid-here",
+                  "description": "Event ID (UUID)"
                 }
               ]
             },
-            "description": "Get a specific event by its ID"
+            "description": "Get a specific event by its ID with hosts, guests, and pre-signed image URLs"
           }
         },
         {
-          "name": "Update Event",
+          "name": "Update Event (JSON)",
           "request": {
             "method": "PUT",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"title\": \"Updated Medical Workshop\",\n  \"description\": \"Updated workshop for medical professionals\",\n  \"location\": \"Mumbai\",\n  \"date\": \"2025-05-01T11:00:00Z\"\n}"
+              "raw": "{\n  \"name\": \"Updated Design Meetup 2025\",\n  \"description\": \"Updated description for the design meetup\",\n  \"startTime\": \"2025-06-15T11:00:00Z\",\n  \"hosts\": [\n    {\n      \"id\": \"existing-host-id-here\",\n      \"name\": \"Updated John Doe\",\n      \"profession\": \"Professional\",\n      \"linkedin\": \"https://linkedin.com/in/johndoe-updated\"\n    },\n    {\n      \"name\": \"New Host\",\n      \"profession\": \"Professional\",\n      \"linkedin\": \"https://linkedin.com/in/newhost\"\n    }\n  ],\n  \"guests\": [\n    {\n      \"id\": \"existing-guest-id-here\",\n      \"name\": \"Updated Jane Smith\",\n      \"profession\": \"Professional\"\n    }\n  ]\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/event/:id",
@@ -271,12 +303,68 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "123456",
-                  "description": "Event ID"
+                  "value": "event-uuid-here",
+                  "description": "Event ID (UUID)"
                 }
               ]
             },
-            "description": "Update an existing event (requires authentication)"
+            "description": "Update an existing event with JSON data (requires authentication and ownership). Include IDs for existing hosts/guests to update them, or omit IDs to create new ones. Hosts/guests not included will be removed."
+          }
+        },
+        {
+          "name": "Update Event (Multipart Form)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "eventData",
+                  "value": "{\n  \"name\": \"Updated Design Meetup 2025\",\n  \"description\": \"Updated description with new images\",\n  \"startTime\": \"2025-06-15T11:00:00Z\",\n  \"hosts\": [\n    {\n      \"id\": \"existing-host-id-here\",\n      \"name\": \"Updated John Doe\",\n      \"profession\": \"Professional\",\n      \"linkedin\": \"https://linkedin.com/in/johndoe-updated\"\n    },\n    {\n      \"name\": \"New Host\",\n      \"profession\": \"Professional\",\n      \"linkedin\": \"https://linkedin.com/in/newhost\"\n    }\n  ],\n  \"guests\": [\n    {\n      \"id\": \"existing-guest-id-here\",\n      \"name\": \"Updated Jane Smith\",\n      \"profession\": \"Professional\"\n    }\n  ]\n}",
+                  "type": "text"
+                },
+                {
+                  "key": "poster",
+                  "type": "file",
+                  "src": "/path/to/your/updated-poster.jpg",
+                  "description": "New event poster image (JPG/PNG)"
+                },
+                {
+                  "key": "hostAvatars",
+                  "type": "file",
+                  "src": [
+                    "/path/to/your/updated-host-avatar.jpg",
+                    "/path/to/your/new-host-avatar.jpg"
+                  ],
+                  "description": "Avatars for hosts (index-matched to hosts array in eventData)"
+                },
+                {
+                  "key": "guestAvatars",
+                  "type": "file",
+                  "src": "/path/to/your/updated-guest-avatar.jpg",
+                  "description": "Avatar for the guest (index-matched to guests array in eventData)"
+                }
+              ],
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/event/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid-here",
+                  "description": "Event ID (UUID)"
+                }
+              ]
+            },
+            "description": "Update an existing event with multipart form data including new images (requires authentication and ownership). Include IDs for existing hosts/guests to update them, or omit IDs to create new ones. Hosts/guests not included will be removed."
           }
         },
         {
@@ -290,15 +378,38 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "123456",
-                  "description": "Event ID"
+                  "value": "event-uuid-here",
+                  "description": "Event ID (UUID)"
                 }
               ]
             },
-            "description": "Delete an event (requires authentication)"
+            "description": "Delete an event including all associated images and speakers (requires authentication and ownership)"
           }
         }
       ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
     }
   ]
 }
