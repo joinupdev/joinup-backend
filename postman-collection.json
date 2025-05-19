@@ -329,21 +329,6 @@
                   "type": "file",
                   "src": "/path/to/your/updated-poster.jpg",
                   "description": "New event poster image (JPG/PNG)"
-                },
-                {
-                  "key": "hostAvatars",
-                  "type": "file",
-                  "src": [
-                    "/path/to/your/updated-host-avatar.jpg",
-                    "/path/to/your/new-host-avatar.jpg"
-                  ],
-                  "description": "Avatars for hosts (index-matched to hosts array in eventData)"
-                },
-                {
-                  "key": "guestAvatars",
-                  "type": "file",
-                  "src": "/path/to/your/updated-guest-avatar.jpg",
-                  "description": "Avatar for the guest (index-matched to guests array in eventData)"
                 }
               ],
               "options": {
@@ -384,6 +369,185 @@
               ]
             },
             "description": "Delete an event including all associated images and speakers (requires authentication and ownership)"
+          }
+        },
+        {
+          "name": "Get Speaker",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/event/:id/speaker/:speakerId",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", ":id", "speaker", ":speakerId"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid-here",
+                  "description": "Event ID (UUID)"
+                },
+                {
+                  "key": "speakerId",
+                  "value": "speaker-uuid-here",
+                  "description": "Speaker ID (UUID)"
+                }
+              ]
+            },
+            "description": "Get a specific speaker by ID with pre-signed avatar URL (requires authentication)"
+          }
+        },
+        {
+          "name": "Create Speaker",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "New Speaker",
+                  "type": "text"
+                },
+                {
+                  "key": "profession",
+                  "value": "Software Engineer",
+                  "type": "text"
+                },
+                {
+                  "key": "linkedin",
+                  "value": "https://linkedin.com/in/newspeaker",
+                  "type": "text"
+                },
+                {
+                  "key": "twitter",
+                  "value": "https://twitter.com/newspeaker",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "Host",
+                  "description": "Must be either 'Host' or 'Guest'",
+                  "type": "text"
+                },
+                {
+                  "key": "hostAvatars",
+                  "type": "file",
+                  "src": "/path/to/your/host-avatar.jpg",
+                  "description": "Avatar for Host (use hostAvatars for Host type)"
+                },
+                {
+                  "key": "guestAvatars",
+                  "type": "file",
+                  "src": "/path/to/your/guest-avatar.jpg",
+                  "description": "Avatar for Guest (use guestAvatars for Guest type)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/event/:id/speaker",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", ":id", "speaker"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid-here",
+                  "description": "Event ID (UUID)"
+                }
+              ]
+            },
+            "description": "Create a new speaker for an event with form data including avatar image (requires authentication and event ownership)"
+          }
+        },
+        {
+          "name": "Update Speaker",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Updated Speaker Name",
+                  "type": "text"
+                },
+                {
+                  "key": "profession",
+                  "value": "Software Architect",
+                  "type": "text"
+                },
+                {
+                  "key": "linkedin",
+                  "value": "https://linkedin.com/in/updatedspeaker",
+                  "type": "text"
+                },
+                {
+                  "key": "twitter",
+                  "value": "https://twitter.com/updatedspeaker",
+                  "type": "text"
+                },
+                {
+                  "key": "type",
+                  "value": "Guest",
+                  "description": "Must be either 'Host' or 'Guest' - changing this will update event relationships",
+                  "type": "text"
+                },
+                {
+                  "key": "hostAvatars",
+                  "type": "file",
+                  "src": "/path/to/your/updated-host-avatar.jpg",
+                  "description": "New avatar for Host (use hostAvatars for Host type)"
+                },
+                {
+                  "key": "guestAvatars",
+                  "type": "file",
+                  "src": "/path/to/your/updated-guest-avatar.jpg",
+                  "description": "New avatar for Guest (use guestAvatars for Guest type)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/event/:id/speaker/:speakerId",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", ":id", "speaker", ":speakerId"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid-here",
+                  "description": "Event ID (UUID)"
+                },
+                {
+                  "key": "speakerId",
+                  "value": "speaker-uuid-here",
+                  "description": "Speaker ID (UUID)"
+                }
+              ]
+            },
+            "description": "Update an existing speaker with form data including optional new avatar image (requires authentication and event ownership). If changing type from Host to Guest or vice versa, the event relationships will be updated automatically."
+          }
+        },
+        {
+          "name": "Delete Speaker",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/event/:id/speaker/:speakerId",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", ":id", "speaker", ":speakerId"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid-here",
+                  "description": "Event ID (UUID)"
+                },
+                {
+                  "key": "speakerId",
+                  "value": "speaker-uuid-here",
+                  "description": "Speaker ID (UUID)"
+                }
+              ]
+            },
+            "description": "Delete a speaker including avatar and event relationship (requires authentication and event ownership)"
           }
         }
       ]
