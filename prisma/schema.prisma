@@ -119,7 +119,7 @@ model Speaker {
   name        String
   profession  String?
   linkedin    String?
-  twitter     String?
+  twitter     String?     
   avatar      String?
   type        SpeakerType // Host, Guest
   event       Event       @relation(fields: [eventId], references: [id])
@@ -198,9 +198,7 @@ enum EventType {
   Meetup
   Conference
   Workshop
-  // Webinar
   Hackathon
-  // Bootcamp
   CoWorking
 }
 

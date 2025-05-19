@@ -18,35 +18,43 @@ import { deleteEvent } from "../services/deleteEvent.service";
 import { updateEvent } from "../services/updateEvent.service";
 
 export const getEventHandler = catchError(async (req, res) => {
-  const profession = req.query.profession as string;
-  const location = req.query.location as string;
-  const eventType = req.query.eventType as string;
+  const profession = req.query.profession as string | undefined;
+  const location = req.query.location as string | undefined;
+  const eventType = req.query.eventType as string | undefined;
   logger.info(
     `Getting events by profession: ${profession}, location: ${location}, event type: ${eventType}`
   );
 
+  if (profession) {
   appAssert(
     Object.values(EventCategory).includes(profession as EventCategory),
-    BAD_REQUEST,
-    "Invalid profession"
-  );
+      BAD_REQUEST,
+      "Invalid profession"
+    );
+  }
 
-  appAssert(
-    Object.values(LocationType).includes(location as LocationType),
-    BAD_REQUEST,
-    "Invalid location"
-  );
+  // Only assert location if present
+  if (location) {
+    appAssert(
+      Object.values(LocationType).includes(location as LocationType),
+      BAD_REQUEST,
+      "Invalid location"
+    );
+  }
 
-  appAssert(
-    Object.values(EventType).includes(eventType as EventType),
-    BAD_REQUEST,
-    "Invalid event type"
-  );
+  // Only assert eventType if present
+  if (eventType) {
+    appAssert(
+      Object.values(EventType).includes(eventType as EventType),
+      BAD_REQUEST,
+      "Invalid event type"
+    );
+  }
 
   const events = await getEvents(
-    profession as Profession,
-    location as LocationType,
-    eventType as EventType
+    profession ? (profession as Profession) : undefined,
+    location ? (location as LocationType) : undefined,
+    eventType ? (eventType as EventType) : undefined
   );
 
   res.status(OK).json({ events });
@@ -124,8 +132,6 @@ export const updateEventHandler = catchError(async (req, res) => {
 
   // Handle multipart form data if present, otherwise handle JSON
   let eventData;
-  let hosts = [];
-  let guests = [];
 
   // Check if this is a multipart request (has files)
   const hasFiles = req.files && Object.keys(req.files).length > 0;
@@ -133,9 +139,7 @@ export const updateEventHandler = catchError(async (req, res) => {
   if (hasFiles) {
     // Parse JSON data from form
     try {
-      eventData = JSON.parse(req.body.eventData || "{}");
-      if (eventData.hosts) hosts = eventData.hosts;
-      if (eventData.guests) guests = eventData.guests;
+      eventData = JSON.parse(req.body.eventData || "{}")
     } catch {
       return res
         .status(BAD_REQUEST)
@@ -144,14 +148,10 @@ export const updateEventHandler = catchError(async (req, res) => {
   } else {
     // Direct JSON payload
     eventData = req.body;
-    if (eventData.hosts) hosts = eventData.hosts;
-    if (eventData.guests) guests = eventData.guests;
   }
 
   const updatedEvent = await updateEvent(
     eventData,
-    hosts,
-    guests,
     req,
     existingEvent as Event
   );

@@ -8,16 +8,23 @@ import prisma from "../config/db";
 import { getObject } from "../config/s3";
 
 export const getEvents = async (
-  profession: Profession,
-  location: LocationType,
-  eventType: EventType
+  profession?: Profession,
+  location?: LocationType,
+  eventType?: EventType
 ) => {
+  const whereClause: Record<string, unknown> = {};
+  if (profession) {
+    whereClause.category = profession as EventCategory;
+  }
+  if (location) {
+    whereClause.location = location as LocationType;
+  }
+  if (eventType) {
+    whereClause.type = eventType as EventType;
+  }
+
   const events = await prisma.event.findMany({
-    where: {
-      category: profession as EventCategory,
-      location: location as LocationType,
-      type: eventType as EventType,
-    },
+    where: whereClause,
     select: {
       id: true,
       name: true,

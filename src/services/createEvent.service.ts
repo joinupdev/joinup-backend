@@ -55,6 +55,12 @@ export const createEvent = async (
     // Process and create guests - this stores guest data in the database
     await createSpeakers(tx, guests, req, id, "Guest");
 
+    // Set default avatar for hosts/guests if not present
+    await tx.speaker.updateMany({
+      where: { eventId: id, avatar: null },
+      data: { avatar: "default/designer_male.jpeg" },
+    });
+
     // Return the created event with all its relations
     return tx.event.findUnique({
       where: { id: newEvent.id },
