@@ -372,6 +372,25 @@
           }
         },
         {
+          "name": "Get All Speakers",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/event/:id/speakers",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", ":id", "speakers"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "event-uuid-here",
+                  "description": "Event ID (UUID)"
+                }
+              ]
+            },
+            "description": "Get all speakers for a specific event with pre-signed avatar URLs"
+          }
+        },
+        {
           "name": "Get Speaker",
           "request": {
             "method": "GET",
