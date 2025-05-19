@@ -31,6 +31,24 @@ const validateInput = async (req: Request) => {
   return existingSpeaker;
 };
 
+export const getSpeakersHandler = catchError(async (req, res) => {
+  const { id } = req.params;
+  appAssert(id, BAD_REQUEST, "Event ID is required");
+  const speakers = await prisma.speaker.findMany({
+    where: { eventId: id },
+  });
+  appAssert(speakers, NOT_FOUND, "No speakers found");
+
+  for (const speaker of speakers) {
+    if (speaker.avatar) {
+      const signedUrl = await getObject(speaker.avatar);
+      speaker.avatar = signedUrl;
+    }
+  }
+  
+  res.status(OK).json(speakers);
+});
+
 export const getSpeakerHandler = catchError(async (req, res) => {
   const { speakerId } = req.params;
   appAssert(speakerId, BAD_REQUEST, "Speaker ID is required");
