@@ -14,6 +14,7 @@ import sessionRouter from "./routes/session.route";
 import logger from "./config/logger";
 import request from "./middleware/request";
 import eventRouter from "./routes/event.route";
+import { oneMinuteLimiter, oneSecondLimiter } from "./middleware/rateLimit";
 
 const app = express();
 
@@ -25,6 +26,10 @@ app.use(
     credentials: true,
   })
 );
+
+// rate limit
+app.use(oneSecondLimiter);
+app.use(oneMinuteLimiter);
 app.use(cookieParser());
 app.use(request);
 

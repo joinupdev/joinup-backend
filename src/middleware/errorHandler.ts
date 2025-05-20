@@ -26,6 +26,7 @@ const handleAppError = (err: AppError, res: Response) => {
 };
 
 // Error handler middleware
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   logger.error(`{path: ${req.path}, message: ${err.message}}`);
 
