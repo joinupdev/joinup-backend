@@ -145,7 +145,8 @@
               "raw": "{{baseUrl}}/user/profile",
               "host": ["{{baseUrl}}"],
               "path": ["user", "profile"]
-            }
+            },
+            "description": "Get user profile with associated social links"
           }
         },
         {
@@ -153,12 +154,16 @@
           "request": {
             "method": "PUT",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"New Name\"\n}" },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"New Name\",\n  \"phoneNumber\": \"+1234567890\",\n  \"gender\": \"Male\",\n  \"profession\": \"Professional\",\n  \"jobTitle\": \"Developer\",\n  \"place\": \"Remote\",\n  \"bio\": \"Full-stack developer with 5 years experience\",\n  \"socialLinks\": [\n    {\n      \"type\": \"LinkedIn\",\n      \"link\": \"https://linkedin.com/in/username\",\n      \"isVisible\": true\n    },\n    {\n      \"type\": \"GitHub\",\n      \"link\": \"https://github.com/username\",\n      \"isVisible\": true\n    },\n    {\n      \"type\": \"Twitter\",\n      \"link\": \"https://twitter.com/username\",\n      \"isVisible\": false\n    }\n  ]\n}"
+            },
             "url": {
               "raw": "{{baseUrl}}/user/profile",
               "host": ["{{baseUrl}}"],
               "path": ["user", "profile"]
-            }
+            },
+            "description": "Update user profile with name, contact info, and social links"
           }
         }
       ]

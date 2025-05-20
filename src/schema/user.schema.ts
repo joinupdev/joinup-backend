@@ -1,18 +1,26 @@
 import { z } from "zod";
-import { Gender, Profession, JobTitle } from "../../generated/prisma";
+import {
+  Gender,
+  Profession,
+  JobTitle,
+  SocialLinkType,
+} from "../../generated/prisma";
+
+export const socialLinkSchema = z.object({
+  type: z.nativeEnum(SocialLinkType),
+  link: z.string().url(),
+  isVisible: z.boolean().optional().default(false),
+});
 
 export const updateUserProfileSchema = z
   .object({
     name: z.string().optional(),
+    phoneNumber: z.string().optional(),
     gender: z.nativeEnum(Gender).optional(),
     profession: z.nativeEnum(Profession).optional(),
     jobTitle: z.nativeEnum(JobTitle).optional(),
     place: z.string().optional(),
-    linkedin: z.string().url().optional(),
-    linkedinVisibility: z.boolean().optional(),
-    github: z.string().url().optional(),
-    twitter: z.string().url().optional(),
-    website: z.string().url().optional(),
+    socialLinks: z.array(socialLinkSchema).optional(),
     bio: z.string().optional(),
     avatar: z.string().optional(),
   })
@@ -25,3 +33,4 @@ export const updateUserSchema = z.object({
 
 export type UpdateUserInput = z.infer<typeof updateUserSchema>;
 export type UpdateUserProfileInput = z.infer<typeof updateUserProfileSchema>;
+export type SocialLinkInput = z.infer<typeof socialLinkSchema>;
