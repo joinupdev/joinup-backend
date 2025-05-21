@@ -41,6 +41,24 @@
           }
         },
         {
+          "name": "Google Login",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/auth/google?code={{google_auth_code}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "google"],
+              "query": [
+                {
+                  "key": "code",
+                  "value": "{{google_auth_code}}"
+                }
+              ]
+            },
+            "description": "OAuth2 Google login with 'postmessage' redirect method. The code parameter is obtained from the Google Auth response."
+          }
+        },
+        {
           "name": "Logout",
           "request": {
             "method": "GET",

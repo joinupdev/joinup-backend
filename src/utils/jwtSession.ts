@@ -62,7 +62,7 @@ export const verifyJwt = (
       ...verifyOpts,
     });
     return { payload };
-  } catch (error: any) {
-    return { error: error.message };
+  } catch (error) {
+    return { error: (error as Error).message };
   }
 };

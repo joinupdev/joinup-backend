@@ -22,6 +22,7 @@ import { verifyEmail } from "../services/verifyEmail.service";
 import { sendPasswordResetEmail } from "../services/forgotPassword.service";
 import { resetPassword } from "../services/resetPassword.service";
 import logger from "../config/logger";
+import { googleLogin } from "../services/googleLogin.service";
 export const registerHandler = catchError(async (req, res) => {
   // Validate Request
   const request = authSchema.parse({
@@ -136,5 +137,19 @@ export const resetPasswordHandler = catchError(async (req, res) => {
 
   return clearAuthCookie(res).status(OK).json({
     message: "Password reset successful",
+  });
+});
+
+export const googleLoginHandler = catchError(async (req, res) => {
+  const code = req.query.code as string;
+  appAssert(code, UNAUTHORIZED, "Missing Google Code");
+
+  const userAgent = req.headers["user-agent"];
+
+  const { user, accessToken, refreshToken } = await googleLogin(code as string, userAgent as string);
+
+  return setAuthCookie({ res, accessToken, refreshToken }).status(OK).json({
+    message: "Google login successful",
+    email: user.email,
   });
 });
