@@ -34,7 +34,7 @@ model UserProfile {
   phoneNumber String?
   profession  Profession? // Optional field (Student / Working)
   gender      Gender?
-  jobTitle    JobTitle? // Designer / Developer
+  jobTitle    String? // Designer / Developer
   place       String? // Optional field (Institute name)
   socialLinks SocialLink[]
   bio         String? // Optional field

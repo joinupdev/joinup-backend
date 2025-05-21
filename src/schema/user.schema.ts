@@ -1,10 +1,5 @@
 import { z } from "zod";
-import {
-  Gender,
-  Profession,
-  JobTitle,
-  SocialLinkType,
-} from "../../generated/prisma";
+import { Gender, Profession, SocialLinkType } from "../../generated/prisma";
 
 export const socialLinkSchema = z.object({
   type: z.nativeEnum(SocialLinkType),
@@ -18,7 +13,7 @@ export const updateUserProfileSchema = z
     phoneNumber: z.string().optional(),
     gender: z.nativeEnum(Gender).optional(),
     profession: z.nativeEnum(Profession).optional(),
-    jobTitle: z.nativeEnum(JobTitle).optional(),
+    jobTitle: z.string().optional(),
     place: z.string().optional(),
     socialLinks: z.array(socialLinkSchema).optional(),
     bio: z.string().optional(),
