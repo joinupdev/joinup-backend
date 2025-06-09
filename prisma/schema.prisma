@@ -100,6 +100,7 @@ model Event {
   hosts           Speaker[]     @relation("EventHost") // Relation to Host model
   guests          Speaker[]     @relation("EventGuests") // Relation to Speaker model
   isPaid          Boolean // Paid/Free
+  approvalType    ApprovalType @default(Auto) // Manual, Auto 
   seats           Int
   ticketPrice     Float[] // Optional if isPaid is false
   accountNumber   String?
@@ -211,4 +212,9 @@ enum VerificationCodeType {
 enum Profession {
   Student
   Professional
+}
+
+enum ApprovalType {
+  Manual
+  Auto
 }

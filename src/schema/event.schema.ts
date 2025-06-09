@@ -2,7 +2,8 @@ import { z } from "zod";
 import {
   EventCategory,
   EventType,
-  LocationType
+  LocationType,
+  ApprovalType
 } from "../../generated/prisma";
 
 export const createEventSchema = z.object({
@@ -14,6 +15,9 @@ export const createEventSchema = z.object({
   }),
   category: z.nativeEnum(EventCategory, {
     errorMap: () => ({ message: "Invalid event category" }),
+  }),
+  approvalType: z.nativeEnum(ApprovalType, {
+    errorMap: () => ({ message: "Invalid approval type" }),
   }),
   startTime: z.coerce.date(),
   duration: z.number().positive("Duration must be positive"),
