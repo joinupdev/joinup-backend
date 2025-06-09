@@ -26,8 +26,8 @@ export const getEventHandler = catchError(async (req, res) => {
   );
 
   if (profession) {
-  appAssert(
-    Object.values(EventCategory).includes(profession as EventCategory),
+    appAssert(
+      Object.values(EventCategory).includes(profession as EventCategory),
       BAD_REQUEST,
       "Invalid profession"
     );
@@ -139,7 +139,7 @@ export const updateEventHandler = catchError(async (req, res) => {
   if (hasFiles) {
     // Parse JSON data from form
     try {
-      eventData = JSON.parse(req.body.eventData || "{}")
+      eventData = JSON.parse(req.body.eventData || "{}");
     } catch {
       return res
         .status(BAD_REQUEST)
@@ -185,4 +185,25 @@ export const deleteEventHandler = catchError(async (req, res) => {
   await deleteEvent(event as Event);
 
   res.status(OK).json({ message: "Event deleted successfully" });
+});
+
+export const getEventsByHostIdHandler = catchError(async (req, res) => {
+  const { hostId } = req.params;
+  logger.info(`Getting events by host id: ${hostId}`);
+  const events = await prisma.event.findMany({
+    where: { hosts: { some: { id: hostId } } },
+    include: {
+      hosts: true,
+      guests: true,
+    },
+  });
+  appAssert(events, NOT_FOUND, "No events found");
+
+  const enrichedEvents = await Promise.all(
+    events.map(async (event) => {
+      return await eventResponse(event as Event);
+    })
+  );
+
+  res.status(OK).json({ events: enrichedEvents });
 });

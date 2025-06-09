@@ -599,6 +599,25 @@
             },
             "description": "Delete a speaker including avatar and event relationship (requires authentication and event ownership)"
           }
+        },
+        {
+          "name": "Get Events by Host ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/event/host/:hostId",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", "host", ":hostId"],
+              "variable": [
+                {
+                  "key": "hostId",
+                  "value": "host-uuid-here",
+                  "description": "Host ID (UUID)"
+                }
+              ]
+            },
+            "description": "Get all events by a specific host ID"
+          }
         }
       ]
     }
