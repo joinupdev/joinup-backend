@@ -207,3 +207,23 @@ export const getEventsByHostIdHandler = catchError(async (req, res) => {
 
   res.status(OK).json({ events: enrichedEvents });
 });
+
+export const getMyEventsHandler = catchError(async (req, res) => {
+  const userId = req.userId;
+  logger.info(`Getting events by user id: ${userId}`);
+  const events = await prisma.event.findMany({
+    where: { userId },
+    include: {
+      hosts: true,
+      guests: true,
+    },
+  });
+  
+  const enrichedEvents = await Promise.all(
+    events.map(async (event) => {
+      return await eventResponse(event as Event);
+    })
+  );
+
+  res.status(OK).json({ events: enrichedEvents });
+});

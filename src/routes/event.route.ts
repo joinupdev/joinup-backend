@@ -7,6 +7,7 @@ import {
   getEventHandler,
   updateEventHandler,
   getEventsByHostIdHandler,
+  getMyEventsHandler,
 } from "../controller/event.controller";
 import { handleImageUpload } from "../middleware/handleImages";
 import {
@@ -20,6 +21,7 @@ const eventRouter = Router();
 
 eventRouter.get("/", getEventHandler);
 eventRouter.get("/host/:hostId", getEventsByHostIdHandler);
+eventRouter.get("/me", authenticate,getMyEventsHandler);
 
 eventRouter.post("/", authenticate, handleImageUpload, createEventHandler);
 eventRouter.get("/:id", getEventByIdHandler);

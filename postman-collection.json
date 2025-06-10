@@ -618,6 +618,18 @@
             },
             "description": "Get all events by a specific host ID"
           }
+        },
+        {
+          "name": "Get My Events",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/event/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["event", "me"]
+            },
+            "description": "Get all events created by the authenticated user (requires authentication)."
+          }
         }
       ]
     }
