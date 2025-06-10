@@ -632,6 +632,30 @@
           }
         }
       ]
+    },
+    {
+      "name": "location",
+      "item": [
+        {
+          "name": "Get Places Autocomplete",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/location?address=New York",
+              "host": ["{{baseUrl}}"],
+              "path": ["location"],
+              "query": [
+                {
+                  "key": "address",
+                  "value": "New York",
+                  "description": "The address or place name to search for"
+                }
+              ]
+            },
+            "description": "Get place suggestions using Google Places Autocomplete API"
+          }
+        }
+      ]
     }
   ],
   "event": [

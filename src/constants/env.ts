@@ -25,3 +25,4 @@ export const BUCKET_NAME = getEnv('BUCKET_NAME');
 export const GOOGLE_CLIENT_ID = getEnv('GOOGLE_CLIENT_ID');
 export const GOOGLE_CLIENT_SECRET = getEnv('GOOGLE_CLIENT_SECRET');
 export const GOOGLE_REDIRECT_URI = getEnv('GOOGLE_REDIRECT_URI');
+export const GOOGLE_MAPS_API_KEY = getEnv('GOOGLE_MAPS_API_KEY');

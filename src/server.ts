@@ -11,9 +11,10 @@ import authRouter from "./routes/auth.route";
 import authenticate from "./middleware/authenticate";
 import userRouter from "./routes/user.route";
 import sessionRouter from "./routes/session.route";
+import eventRouter from "./routes/event.route";
+import locationRouter from "./routes/location.route";
 import logger from "./config/logger";
 import request from "./middleware/request";
-import eventRouter from "./routes/event.route";
 import { oneMinuteLimiter, oneSecondLimiter } from "./middleware/rateLimit";
 
 const app = express();
@@ -43,6 +44,7 @@ app.use("/auth", authRouter);
 app.use("/user", authenticate, userRouter);
 app.use("/session", authenticate, sessionRouter);
 app.use("/event", eventRouter);
+app.use("/location", authenticate, locationRouter);
 
 // Catch all errors that are not caught by the route handlers
 app.use(errorHandler);
