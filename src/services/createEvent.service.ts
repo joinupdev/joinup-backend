@@ -8,6 +8,7 @@ import type { Request, Express } from "express";
 import { Speaker } from "../types/event.types";
 import { createSpeakers } from "../services/speaker.service";
 import { uploadToS3 } from "../utils/uploadToS3";
+import { GOOGLE_MAPS_API_KEY } from "../constants/env";
 
 export const createEvent = async (
   eventData: Event,
@@ -39,6 +40,25 @@ export const createEvent = async (
       0
     );
 
+    let latitude: number | undefined;
+    let longitude: number | undefined;
+
+    if (result.data.location === "Physical" && result.data.completeAddress) {
+      const geoResponse = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+          result.data.completeAddress
+        )}&key=${GOOGLE_MAPS_API_KEY}`
+      );
+      const geoData = await geoResponse.json();
+      console.log(geoData);
+      if (geoData.status === "OK" && geoData.results[0]) {
+        const location = geoData.results[0].geometry.location;
+        console.log(location);
+        latitude = location.lat;
+        longitude = location.lng;
+      }
+    }
+
     // Create the event record in the database
     const newEvent = await tx.event.create({
       data: {
@@ -46,6 +66,8 @@ export const createEvent = async (
         ...restEventData,
         poster: posterKey || null, // Use null if empty string
         userId: req.userId, // From the authenticate middleware
+        latitude,
+        longitude,
       },
     });
 

@@ -24,6 +24,8 @@ export type Event = {
   duration: number;
   location: LocationType;
   completeAddress: string;
+  latitude?: number | null;
+  longitude?: number | null;
   hosts: Speaker[];
   guests: Speaker[];
   isPaid: boolean;

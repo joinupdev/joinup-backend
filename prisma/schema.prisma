@@ -97,10 +97,12 @@ model Event {
   duration        Int // In hours
   location        LocationType // Online, Physical
   completeAddress String // Web URL / Complete address
+  latitude        Float?
+  longitude       Float?
   hosts           Speaker[]     @relation("EventHost") // Relation to Host model
   guests          Speaker[]     @relation("EventGuests") // Relation to Speaker model
   isPaid          Boolean // Paid/Free
-  approvalType    ApprovalType @default(Auto) // Manual, Auto 
+  approvalType    ApprovalType  @default(Auto) // Manual, Auto 
   seats           Int
   ticketPrice     Float[] // Optional if isPaid is false
   accountNumber   String?
@@ -120,7 +122,7 @@ model Speaker {
   name        String
   profession  String?
   linkedin    String?
-  twitter     String?     
+  twitter     String?
   avatar      String?
   type        SpeakerType // Host, Guest
   event       Event       @relation(fields: [eventId], references: [id])
