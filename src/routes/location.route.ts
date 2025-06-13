@@ -1,8 +1,10 @@
 import { Router } from "express";
-import { getPlacesHandler } from "../controller/location.controller";
+import { getCitiesHandler, getPlacesHandler } from "../controller/location.controller";
 
 const locationRouter = Router();
 
 locationRouter.get("/", getPlacesHandler);
+
+locationRouter.get("/city", getCitiesHandler);
 
 export default locationRouter;

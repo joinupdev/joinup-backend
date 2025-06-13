@@ -654,6 +654,25 @@
             },
             "description": "Get place suggestions using Google Places Autocomplete API"
           }
+        },
+        {
+          "name": "Get Cities",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/location/city?address=ch",
+              "host": ["{{baseUrl}}"],
+              "path": ["location", "city"],
+              "query": [
+                {
+                  "key": "address",
+                  "value": "ch",
+                  "description": "Partial city name to search for. If empty, returns a default list."
+                }
+              ]
+            },
+            "description": "Searches for cities by name. Returns up to 5 matching cities. If the search term is empty, a default list of major cities is returned."
+          }
         }
       ]
     }
