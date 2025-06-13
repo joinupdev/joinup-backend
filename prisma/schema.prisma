@@ -87,34 +87,36 @@ model Session {
 }
 
 model Event {
-  id              String        @id @default(uuid())
-  name            String
-  description     String // Maps to why attend section
-  poster          String? // URL of the poster image
-  type            EventType // Meetup, conference, etc
-  category        EventCategory // Design, Development, Both
-  startTime       DateTime
-  duration        Int // In hours
-  location        LocationType // Online, Physical
-  completeAddress String // Web URL / Complete address
-  latitude        Float?
-  longitude       Float?
-  hosts           Speaker[]     @relation("EventHost") // Relation to Host model
-  guests          Speaker[]     @relation("EventGuests") // Relation to Speaker model
-  isPaid          Boolean // Paid/Free
-  approvalType    ApprovalType  @default(Auto) // Manual, Auto 
-  seats           Int
-  ticketPrice     Float[] // Optional if isPaid is false
-  accountNumber   String?
-  accountName     String?
-  IFSCCode        String?
-  termsConditions String?
-  bookings        Booking[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime?     @updatedAt
-  User            User?         @relation(fields: [userId], references: [id])
-  userId          String?
-  Speaker         Speaker[]
+  id                     String        @id @default(uuid())
+  name                   String
+  description            String // Maps to why attend section
+  poster                 String? // URL of the poster image
+  type                   EventType // Meetup, conference, etc
+  category               EventCategory // Design, Development, Both
+  startTime              DateTime
+  duration               Int // In hours
+  location               LocationType // Online, Physical
+  completeAddress        String // Web URL / Complete address
+  latitude               Float?
+  longitude              Float?
+  hosts                  Speaker[]     @relation("EventHost") // Relation to Host model
+  guests                 Speaker[]     @relation("EventGuests") // Relation to Speaker model
+  isPaid                 Boolean // Paid/Free
+  approvalType           ApprovalType  @default(Auto) // Manual, Auto 
+  seats                  Int
+  ticketPrice            Float[] // Optional if isPaid is false
+  accountNumber          String?
+  accountName            String?
+  IFSCCode               String?
+  additionalChargeBearer ChargeBearer? @default(Attendee) // Attendee, Organizer
+  termsConditions        String?
+  isActive               Boolean       @default(true)
+  bookings               Booking[]
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime?     @updatedAt
+  User                   User?         @relation(fields: [userId], references: [id])
+  userId                 String?
+  Speaker                Speaker[]
 }
 
 model Speaker {
@@ -219,4 +221,9 @@ enum Profession {
 enum ApprovalType {
   Manual
   Auto
+}
+
+enum ChargeBearer {
+  Attendee
+  Organizer
 }

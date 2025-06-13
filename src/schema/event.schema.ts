@@ -3,7 +3,8 @@ import {
   EventCategory,
   EventType,
   LocationType,
-  ApprovalType
+  ApprovalType,
+  ChargeBearer,
 } from "../../generated/prisma";
 
 export const createEventSchema = z.object({
@@ -32,6 +33,9 @@ export const createEventSchema = z.object({
   ),
   accountNumber: z.string().optional().nullable(),
   accountName: z.string().optional().nullable(),
+  additionalChargeBearer: z.nativeEnum(ChargeBearer, {
+    errorMap: () => ({ message: "Invalid additional charge bearer" }),
+  }),
   IFSCCode: z.string().optional().nullable(),
   termsConditions: z.string().optional().nullable(),
   // Nested objects for speakers and hosts
