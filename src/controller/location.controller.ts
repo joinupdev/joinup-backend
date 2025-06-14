@@ -20,7 +20,7 @@ export const getCitiesHandler = catchError(async (req, res) => {
     where: {
       name: address
         ? {
-            contains: address,
+            startsWith: address,
             mode: "insensitive",
           }
         : {
