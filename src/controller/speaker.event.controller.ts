@@ -39,14 +39,17 @@ export const getSpeakersHandler = catchError(async (req, res) => {
   });
   appAssert(speakers, NOT_FOUND, "No speakers found");
 
-  for (const speaker of speakers) {
-    if (speaker.avatar) {
-      const signedUrl = await getObject(speaker.avatar);
-      speaker.avatar = signedUrl;
-    }
-  }
-  
-  res.status(OK).json(speakers);
+  const speakersWithSignedUrls = await Promise.all(
+    speakers.map(async (speaker) => {
+      if (speaker.avatar) {
+        const signedUrl = await getObject(speaker.avatar);
+        return { ...speaker, avatar: signedUrl };
+      }
+      return speaker;
+    })
+  );
+
+  res.status(OK).json(speakersWithSignedUrls);
 });
 
 export const getSpeakerHandler = catchError(async (req, res) => {
@@ -60,7 +63,8 @@ export const getSpeakerHandler = catchError(async (req, res) => {
   appAssert(speaker, NOT_FOUND, "Speaker not found");
   if (speaker.avatar) {
     const signedUrl = await getObject(speaker.avatar);
-    speaker.avatar = signedUrl;
+    const speakerWithSignedUrl = { ...speaker, avatar: signedUrl };
+    return res.status(OK).json(speakerWithSignedUrl);
   }
   res.status(OK).json(speaker);
 });
@@ -97,7 +101,8 @@ export const createSpeakerHandler = catchError(async (req, res) => {
 
   if (speaker.avatar) {
     const signedUrl = await getObject(speaker.avatar);
-    speaker.avatar = signedUrl;
+    const speakerWithSignedUrl = { ...speaker, avatar: signedUrl };
+    return res.status(OK).json(speakerWithSignedUrl);
   }
 
   res.status(OK).json(speaker);
@@ -186,7 +191,9 @@ export const updateSpeakerHandler = catchError(async (req, res) => {
 
   // Return signed URL for avatar if present
   if (updatedSpeaker.avatar) {
-    updatedSpeaker.avatar = await getObject(updatedSpeaker.avatar);
+    const signedUrl = await getObject(updatedSpeaker.avatar);
+    const speakerWithSignedUrl = { ...updatedSpeaker, avatar: signedUrl };
+    return res.status(OK).json(speakerWithSignedUrl);
   }
 
   res.status(OK).json(updatedSpeaker);

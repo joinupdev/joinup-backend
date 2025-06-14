@@ -11,6 +11,7 @@ const eventUpload = upload.fields([
   { name: "poster", maxCount: 1 },
   { name: "hostAvatars", maxCount: 10 },
   { name: "guestAvatars", maxCount: 20 },
+  { name: "avatar", maxCount: 1 },
 ]);
 
 // Middleware wrapper for multer
@@ -22,13 +23,13 @@ export const handleImageUpload = (
   eventUpload(req, res, (err) => {
     if (err instanceof multer.MulterError) {
       return res
-          .status(BAD_REQUEST)
-          .json({ error: `Upload error: ${err.message}` });
-      } else if (err) {
-        return res
-          .status(BAD_REQUEST)
-          .json({ error: `Unknown error: ${err.message}` });
-      }
-      next();
-    });
-  };
+        .status(BAD_REQUEST)
+        .json({ error: `Upload error: ${err.message}` });
+    } else if (err) {
+      return res
+        .status(BAD_REQUEST)
+        .json({ error: `Unknown error: ${err.message}` });
+    }
+    next();
+  });
+};

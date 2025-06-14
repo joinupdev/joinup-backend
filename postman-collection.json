@@ -183,6 +183,36 @@
             },
             "description": "Update user profile with name, contact info, and social links"
           }
+        },
+        {
+          "name": "Update User Profile (with Avatar)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "body",
+                  "value": "{\n  \"name\": \"Achhaya Pathak\",\n  \"bio\": \"Building things for the web.\",\n  \"socialLinks\": [\n    {\n      \"type\": \"LinkedIn\",\n      \"link\": \"https://linkedin.com/in/achhayapathak\",\n      \"isVisible\": true\n    }\n  ]\n}",
+                  "type": "text",
+                  "description": "JSON string with user profile fields."
+                },
+                {
+                  "key": "avatar",
+                  "type": "file",
+                  "src": "/path/to/your/avatar.jpg",
+                  "description": "User avatar image (optional)"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/user/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["user", "profile"]
+            },
+            "description": "Update user profile with multipart form data including an avatar image. Requires authentication."
+          }
         }
       ]
     },
