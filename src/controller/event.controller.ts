@@ -2,12 +2,7 @@ import { BAD_REQUEST, FORBIDDEN, NOT_FOUND, OK } from "../constants/http";
 import logger from "../config/logger";
 import catchError from "../utils/catchError";
 import appAssert from "../utils/appAssert";
-import {
-  EventCategory,
-  EventType,
-  LocationType,
-  Profession,
-} from "../../generated/prisma";
+import { EventCategory, EventType, Profession } from "../../generated/prisma";
 import prisma from "../config/db";
 import AppErrorCode from "../constants/appErrorCode";
 import { getEvents } from "../services/getEvents.service";
@@ -33,15 +28,6 @@ export const getEventHandler = catchError(async (req, res) => {
     );
   }
 
-  // Only assert location if present
-  if (location) {
-    appAssert(
-      Object.values(LocationType).includes(location as LocationType),
-      BAD_REQUEST,
-      "Invalid location"
-    );
-  }
-
   // Only assert eventType if present
   if (eventType) {
     appAssert(
@@ -53,7 +39,7 @@ export const getEventHandler = catchError(async (req, res) => {
 
   const events = await getEvents(
     profession ? (profession as Profession) : undefined,
-    location ? (location as LocationType) : undefined,
+    location ? String(location) : undefined,
     eventType ? (eventType as EventType) : undefined
   );
 
@@ -218,7 +204,7 @@ export const getMyEventsHandler = catchError(async (req, res) => {
       guests: true,
     },
   });
-  
+
   const enrichedEvents = await Promise.all(
     events.map(async (event) => {
       return await eventResponse(event as Event);
